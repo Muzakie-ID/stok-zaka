@@ -1,11 +1,10 @@
 <div>
     <!-- Header (avatar & role sudah ditampilkan layout di kanan-atas) -->
     <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Halo, {{ auth()->user()->name }}! 👋</h1>
         @if($isAdmin)
-        <h1 class="text-2xl font-bold text-gray-800">Halo, Bos! 👋</h1>
         <p class="text-gray-500 text-sm">Pantau bisnismu hari ini.</p>
         @else
-        <h1 class="text-2xl font-bold text-gray-800">Halo, {{ auth()->user()->name }}! 👋</h1>
         <p class="text-gray-500 text-sm">Semangat jualan hari ini.</p>
         @endif
     </div>
