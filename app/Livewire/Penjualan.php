@@ -25,6 +25,7 @@ class Penjualan extends Component
 
     // Data Checkout
     public $nama_pembeli;
+    public $wa_pembeli;
     public $total_transaksi;
     public $harga_jual_items = []; // Array [hp_id => harga_jual]
 
@@ -76,6 +77,10 @@ class Penjualan extends Component
 
     public function processReturn()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa retur barang.');
+        }
+
         if(!$this->detailIdToReturn) return;
 
         $detail = DetailPenjualan::with(['penjualan', 'hp'])->find($this->detailIdToReturn);
@@ -128,6 +133,7 @@ class Penjualan extends Component
     {
         $this->validate([
             'nama_pembeli' => 'nullable|string',
+            'wa_pembeli' => 'nullable|string|max:30',
             'total_transaksi' => 'required|numeric|min:0',
             'harga_jual_items.*' => 'required|numeric|min:0',
         ]);
@@ -146,6 +152,7 @@ class Penjualan extends Component
             // 1. Buat Header Penjualan
             $penjualan = PenjualanModel::create([
                 'nama_pembeli' => $this->nama_pembeli,
+                'wa_pembeli' => $this->wa_pembeli,
                 'total_transaksi' => $this->total_transaksi,
                 'tanggal_jual' => now(),
             ]);

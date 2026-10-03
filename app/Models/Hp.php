@@ -15,7 +15,15 @@ class Hp extends Model
         'harga_beli_awal',
         'total_modal',
         'status',
+        'label_printed_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'label_printed_at' => 'datetime',
+        ];
+    }
 
     public function services()
     {

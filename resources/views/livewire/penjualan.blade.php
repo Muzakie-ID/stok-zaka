@@ -3,7 +3,7 @@
     <div class="px-4 pt-4 pb-2">
         <div class="tabs tabs-boxed bg-gray-100 p-1 rounded-xl">
             <a wire:click="$set('viewMode', 'input')" class="tab w-1/2 h-10 transition-all {{ $viewMode == 'input' ? 'tab-active bg-white shadow-sm text-primary font-bold' : 'text-gray-500 hover:text-gray-700' }}">Input Baru</a>
-            <a wire:click="$set('viewMode', 'history')" class="tab w-1/2 h-10 transition-all {{ $viewMode == 'history' ? 'tab-active bg-white shadow-sm text-primary font-bold' : 'text-gray-500 hover:text-gray-700' }}">Riwayat & Retur</a>
+            <a wire:click="$set('viewMode', 'history')" class="tab w-1/2 h-10 transition-all {{ $viewMode == 'history' ? 'tab-active bg-white shadow-sm text-primary font-bold' : 'text-gray-500 hover:text-gray-700' }}">{{ auth()->user()?->isAdmin() ? 'Riwayat & Retur' : 'Riwayat' }}</a>
         </div>
     </div>
 
@@ -61,7 +61,7 @@
 
     @if($viewMode == 'input')
         {{-- Header Input --}}
-        <div class="navbar bg-base-100 shadow-sm sticky top-0 z-30">
+        <div class="navbar bg-base-100 shadow-sm sticky top-14 z-30">
             <div class="flex-1">
                 <a class="btn btn-ghost text-xl">
                     @if($step == 1) Pilih Barang @else Checkout @endif
@@ -107,7 +107,9 @@
                                     @endif
                                 </div>
                                 <div class="text-sm font-semibold text-secondary mt-1">
+                                    @if(auth()->user()?->isAdmin())
                                     Modal: Rp {{ number_format($hp->total_modal, 0, ',', '.') }}
+                                    @endif
                                 </div>
                             </div>
                             <div>
@@ -142,9 +144,19 @@
                 <div class="card bg-base-100 shadow-sm border border-base-200">
                     <div class="card-body p-4">
                         <h3 class="font-bold mb-2">Info Transaksi</h3>
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text">Nama Pembeli (Opsional)</span></label>
-                            <input type="text" wire:model="nama_pembeli" class="input input-bordered w-full" placeholder="Contoh: Pak Budi" />
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text">Nama Pembeli (Opsional)</span></label>
+                                <input type="text" wire:model="nama_pembeli" class="input input-bordered w-full" placeholder="Contoh: Pak Budi" />
+                            </div>
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text">No. WhatsApp (Opsional)</span></label>
+                                <label class="input input-bordered flex items-center gap-2 w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4 text-green-600 shrink-0" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 004.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.83 14.13c-.25.7-1.44 1.33-2.01 1.42-.51.08-1.16.11-1.87-.12-.43-.14-.99-.32-1.7-.63-3-1.3-4.96-4.32-5.11-4.52-.15-.2-1.22-1.62-1.22-3.09 0-1.47.77-2.19 1.04-2.49.27-.3.59-.38.79-.38.2 0 .4.002.57.01.18.008.43-.07.67.51.25.6.84 2.06.91 2.21.08.15.13.33.02.53-.1.2-.15.32-.3.5-.15.17-.32.39-.46.52-.15.15-.31.31-.13.61.18.3.79 1.3 1.69 2.11 1.16 1.03 2.14 1.35 2.44 1.5.3.15.48.13.65-.08.18-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.72.81 2.02.96.3.15.5.23.57.35.08.13.08.73-.17 1.43z"/></svg>
+                                    <input type="tel" wire:model="wa_pembeli" class="grow" placeholder="0812xxxx" />
+                                </label>
+                                @error('wa_pembeli') <span class="text-error text-xs">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                         <div class="form-control w-full mt-2">
                             <label class="label"><span class="label-text font-bold">Total Transaksi (Semua Barang)</span></label>
@@ -159,11 +171,12 @@
                         </div>
                         @error('total_transaksi') <span class="text-error text-sm">{{ $message }}</span> @enderror
 
-                        {{-- Realtime Profit Info --}}
+                        {{-- Realtime Profit Info (khusus admin) --}}
                         @php
                             $totalModal = $hps->sum('total_modal');
                             $estimasiProfit = (float)$total_transaksi - $totalModal;
                         @endphp
+                        @if(auth()->user()?->isAdmin())
                         <div class="grid grid-cols-2 gap-4 mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
                             <div>
                                 <div class="text-xs text-gray-500">Total Modal</div>
@@ -176,6 +189,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
 
@@ -201,7 +215,9 @@
                                                 @endif
                                             </div>
                                         </div>
+                                        @if(auth()->user()?->isAdmin())
                                         <div class="badge badge-ghost text-xs">Modal: {{ number_format($hp->total_modal, 0, ',', '.') }}</div>
+                                        @endif
                                     </div>
                                     <div class="form-control">
                                         <label class="label py-0"><span class="label-text text-xs">Harga Jual Unit Ini</span></label>
@@ -218,8 +234,8 @@
                                             <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold pointer-events-none">Rp</span>
                                         </div>
                                     </div>
-                                    {{-- Kalkulasi Laba Realtime --}}
-                                    @if(isset($harga_jual_items[$hp->id]) && is_numeric($harga_jual_items[$hp->id]))
+                                    {{-- Kalkulasi Laba Realtime (khusus admin) --}}
+                                    @if(auth()->user()?->isAdmin() && isset($harga_jual_items[$hp->id]) && is_numeric($harga_jual_items[$hp->id]))
                                         <div class="text-right mt-1 text-xs">
                                             @php $laba = $harga_jual_items[$hp->id] - $hp->total_modal; @endphp
                                             Laba: <span class="{{ $laba >= 0 ? 'text-success' : 'text-error' }} font-bold">
@@ -283,6 +299,12 @@
                             <div>
                                 <div class="font-bold text-gray-800">{{ $trx->nama_pembeli ?: 'Tanpa Nama' }}</div>
                                 <div class="text-xs text-gray-500">{{ $trx->created_at->format('d M Y H:i') }}</div>
+                                @if($trx->wa_pembeli)
+                                    <a href="{{ $trx->wa_link }}" target="_blank" class="btn btn-xs mt-1 h-6 min-h-6 gap-1 border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:border-green-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-3 w-3" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 004.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.83 14.13c-.25.7-1.44 1.33-2.01 1.42-.51.08-1.16.11-1.87-.12-.43-.14-.99-.32-1.7-.63-3-1.3-4.96-4.32-5.11-4.52-.15-.2-1.22-1.62-1.22-3.09 0-1.47.77-2.19 1.04-2.49.27-.3.59-.38.79-.38.2 0 .4.002.57.01.18.008.43-.07.67.51.25.6.84 2.06.91 2.21.08.15.13.33.02.53-.1.2-.15.32-.3.5-.15.17-.32.39-.46.52-.15.15-.31.31-.13.61.18.3.79 1.3 1.69 2.11 1.16 1.03 2.14 1.35 2.44 1.5.3.15.48.13.65-.08.18-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.72.81 2.02.96.3.15.5.23.57.35.08.13.08.73-.17 1.43z"/></svg>
+                                        {{ $trx->wa_pembeli }}
+                                    </a>
+                                @endif
                             </div>
                             <div class="text-right">
                                 <div class="font-bold text-primary">Rp {{ number_format($trx->total_transaksi, 0, ',', '.') }}</div>
@@ -299,7 +321,7 @@
                                     <div class="text-xs text-green-600 font-semibold mt-1">Rp {{ number_format($dtl->harga_jual_unit, 0, ',', '.') }}</div>
                                 </div>
                                 <div>
-                                    @if($dtl->hp)
+                                    @if($dtl->hp && auth()->user()?->isAdmin())
                                         <button 
                                             wire:click="confirmReturn({{ $dtl->id }})"
                                             class="btn btn-xs btn-outline btn-error rounded-lg"

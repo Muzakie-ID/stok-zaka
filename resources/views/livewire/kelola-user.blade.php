@@ -96,11 +96,15 @@
                 <span class="text-[10px] font-bold px-2 py-1 rounded-full shrink-0 {{ $u->isAdmin() ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
                     {{ $u->roleLabel() }}
                 </span>
-                <div class="flex gap-1 shrink-0">
+                <div class="flex gap-1.5 shrink-0">
                     <button wire:click="openEdit({{ $u->id }})"
-                            class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">Ubah</button>
+                            class="rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-600 text-xs font-bold px-3 py-2 transition">
+                        Ubah
+                    </button>
                     <button wire:click="hapus({{ $u->id }})" wire:confirm="Hapus akun {{ $u->name }}?"
-                            class="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold">Hapus</button>
+                            class="rounded-xl bg-red-50 hover:bg-red-100 active:scale-95 text-red-600 text-xs font-bold px-3 py-2 transition">
+                        Hapus
+                    </button>
                 </div>
             </div>
         @empty

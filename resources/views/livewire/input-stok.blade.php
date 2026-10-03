@@ -252,61 +252,65 @@
         #reader-video { width: 100%; height: 100%; object-fit: cover; }
     </style>
     <script>
-        let codeReader;
-        let isScanning = false;
-        
-        function startScan() {
-            if (!navigator.mediaDevices && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                alert('Fitur kamera memerlukan koneksi aman (HTTPS) atau localhost.');
-                return;
-            }
+        (function () {
+            if (window.startScan) return; // Sudah pernah dideklarasikan (navigasi Livewire) — jangan redeclare
 
-            const modal = document.getElementById('modal_scan');
-            modal.showModal();
-            isScanning = true;
-            
-            setTimeout(() => {
-                if (!codeReader) {
-                    codeReader = new window.BrowserMultiFormatReader();
+            let codeReader;
+            let isScanning = false;
+
+            window.startScan = function () {
+                if (!navigator.mediaDevices && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+                    alert('Fitur kamera memerlukan koneksi aman (HTTPS) atau localhost.');
+                    return;
                 }
 
-                codeReader.decodeFromVideoDevice(null, 'reader-video', (result, err) => {
-                    if (result && isScanning) {
-                        console.log("Sukses Scan Code: " + result.getText());
-                        
-                        // Isi data ke input Livewire
-                        @this.set('imei', result.getText());
-                        
-                        // Langsung tutup setelah sukses membaca 1x
+                const modal = document.getElementById('modal_scan');
+                modal.showModal();
+                isScanning = true;
+
+                setTimeout(() => {
+                    if (!codeReader) {
+                        codeReader = new window.BrowserMultiFormatReader();
+                    }
+
+                    codeReader.decodeFromVideoDevice(null, 'reader-video', (result, err) => {
+                        if (result && isScanning) {
+                            console.log("Sukses Scan Code: " + result.getText());
+
+                            // Isi data ke input Livewire
+                            @this.set('imei', result.getText());
+
+                            // Langsung tutup setelah sukses membaca 1x
+                            stopScan();
+                        }
+                        if (err && !(err instanceof window.NotFoundException)) {
+                            // Jangan alert NotFoundException (itu normal artinya frame tersebut tidak ada barcode)
+                            // console.error(err);
+                        }
+                    }).catch((err) => {
+                        console.error("Kesalahan inisialisasi kamera:", err);
+                        alert("Kamera gagal diakses: " + err);
                         stopScan();
-                    }
-                    if (err && !(err instanceof window.NotFoundException)) {
-                        // Jangan alert NotFoundException (itu normal artinya frame tersebut tidak ada barcode)
-                        // console.error(err);
-                    }
-                }).catch((err) => {
-                    console.error("Kesalahan inisialisasi kamera:", err);
-                    alert("Kamera gagal diakses: " + err);
-                    stopScan();
-                });
-            }, 300);
-        }
+                    });
+                }, 300);
+            };
 
-        function stopScan() {
-            isScanning = false;
-            if (codeReader) {
-                try {
-                    // Reset akan menghentikan stream kamera dan membersihkan listener
-                    codeReader.reset();
-                } catch(e) {
-                    console.error(e);
+            window.stopScan = function () {
+                isScanning = false;
+                if (codeReader) {
+                    try {
+                        // Reset akan menghentikan stream kamera dan membersihkan listener
+                        codeReader.reset();
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
-            }
-            
-            const modal = document.getElementById('modal_scan');
-            if(modal) {
-                modal.close();
-            }
-        }
+
+                const modal = document.getElementById('modal_scan');
+                if (modal) {
+                    modal.close();
+                }
+            };
+        })();
     </script>
 </div>

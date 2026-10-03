@@ -26,6 +26,7 @@ class Home extends Component
 
         $stokReadyCount = Hp::where('status', 'READY')->count();
         $totalModalStok = Hp::where('status', 'READY')->sum('total_modal');
+        $terjualHariIni = DetailPenjualan::whereDate('created_at', Carbon::today())->count();
 
         // 2. Aktivitas Terbaru (Gabungan Penjualan & Service)
         // Ambil 5 Penjualan Terakhir
@@ -91,6 +92,8 @@ class Home extends Component
             'chartDates' => $dates,
             'chartModal' => $chartData['modal'],
             'chartProfit' => $chartData['profit'],
+            'terjualHariIni' => $terjualHariIni,
+            'isAdmin' => auth()->user()?->isAdmin(),
         ]);
     }
 }

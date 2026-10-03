@@ -1,6 +1,6 @@
 <div class="pb-24">
     <!-- Header -->
-    <div class="bg-white p-4 sticky top-0 z-30 shadow-sm border-b border-gray-200">
+    <div class="bg-white p-4 sticky top-14 z-30 shadow-sm border-b border-gray-200">
         <h1 class="text-xl font-bold text-gray-800">Riwayat Service</h1>
         <p class="text-xs text-gray-500">Daftar perbaikan unit HP</p>
     </div>

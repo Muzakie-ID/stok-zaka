@@ -1,6 +1,6 @@
 <div class="pb-20">
     <!-- Header & Search -->
-    <div class="sticky top-0 bg-gray-50 pt-4 pb-2 z-10">
+    <div class="sticky top-14 bg-gray-50 pt-4 pb-2 z-10">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold text-gray-800">Stok Gudang</h1>
             <div class="badge badge-primary badge-outline">{{ count($hps) }} Unit</div>
@@ -22,6 +22,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h2 class="card-title text-base font-bold text-gray-800">{{ $hp->merk_model }}</h2>
+
                                 <p class="text-xs text-gray-500 font-mono mt-1">IMEI: {{ $hp->imei }}</p>
                             </div>
                             <div class="badge {{ $hp->status == 'READY' ? 'badge-success' : 'badge-warning' }} badge-sm text-white">
@@ -42,6 +43,7 @@
                     </div>
 
                     <div class="flex justify-between items-center">
+                        @if(auth()->user()?->isAdmin())
                         <div class="text-xs text-gray-400">
                             Sumber: {{ $hp->sumber_beli ?? '-' }}
                         </div>
@@ -53,6 +55,13 @@
                                 Rp {{ number_format($hp->total_modal, 0, ',', '.') }}
                             </div>
                         </div>
+                        @else
+                        <!-- Karyawan: info sensitif (modal/sumber) disembunyikan -->
+                        <div class="text-xs text-gray-400">
+                            @if($hp->warna)<span class="mr-2">{{ $hp->warna }}</span>@endif
+                            @if($hp->keterangan_minus)<span>Minus: {{ $hp->keterangan_minus }}</span>@endif
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -63,7 +72,9 @@
                 </div>
                 <h3 class="font-bold text-gray-500">Gudang Kosong</h3>
                 <p class="text-sm text-gray-400 mt-1">Belum ada stok HP masuk.</p>
+                @if(auth()->user()?->isAdmin())
                 <button onclick="modal_input_stok.showModal()" class="btn btn-sm btn-primary mt-4">Tambah Stok</button>
+                @endif
             </div>
         @endforelse
     </div>

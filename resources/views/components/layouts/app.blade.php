@@ -15,8 +15,42 @@
 </head>
 <body class="bg-slate-50 min-h-screen pb-24"> <!-- pb-24 untuk space bottom nav -->
     
+    <!-- Top Bar (pasangan bottom nav) -->
+    @auth
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 h-14 px-4 flex items-center justify-between gap-2 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <span class="text-xs font-semibold text-slate-500 truncate">
+            {{ auth()->user()->name }} &middot; {{ auth()->user()->roleLabel() }}
+        </span>
+        <div class="flex items-center gap-2 shrink-0">
+            @if(auth()->user()?->isAdmin())
+            <a href="/label" wire:navigate title="Label Barcode"
+               class="w-9 h-9 rounded-full bg-white/80 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+            </a>
+            <a href="/saldo-karyawan" wire:navigate title="Saldo Karyawan"
+               class="w-9 h-9 rounded-full bg-white/80 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7 1v2" /></svg>
+            </a>
+            <a href="/kelola-user" wire:navigate title="Kelola user"
+               class="w-9 h-9 rounded-full bg-white/80 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            </a>
+            @else
+            <a href="/saldo-saya" wire:navigate title="Saldo upah saya"
+               class="w-9 h-9 rounded-full bg-white/80 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7 1v2" /></svg>
+            </a>
+            @endif
+            <a href="/profil" title="Profil &amp; keluar"
+               class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shadow-[0_4px_12px_rgba(16,185,129,0.3)]">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            </a>
+        </div>
+    </div>
+    @endauth
+
     <!-- Main Content -->
-    <main class="container mx-auto p-4 max-w-md">
+    <main class="container mx-auto px-4 max-w-md pt-[72px]">
         {{ $slot }}
     </main>
 
@@ -42,12 +76,14 @@
             <span class="text-[10px] font-semibold">Jual</span>
         </a>
 
-        <!-- Add Button (Center) -->
+        <!-- Add Button (Center, khusus admin) -->
+        @if(auth()->user()?->isAdmin())
         <div class="relative -top-6">
             <button onclick="modal_input_stok.showModal()" class="bg-emerald-600 text-white rounded-2xl h-12 w-12 shadow-[0_8px_20px_rgba(16,185,129,0.3)] grid place-items-center hover:bg-emerald-700 transition-all active:scale-90 border-4 border-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             </button>
         </div>
+        @endif
 
 
         @if(auth()->user()?->isAdmin())
@@ -75,29 +111,13 @@
         @endif
     </div>
 
-    @auth
-    <div class="fixed top-0 right-0 z-50 p-3 flex items-center gap-2">
-        <span class="hidden sm:inline text-xs font-semibold text-slate-500 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-slate-100">
-            {{ auth()->user()->name }} &middot; {{ auth()->user()->roleLabel() }}
-        </span>
-        @if(auth()->user()?->isAdmin())
-        <a href="/kelola-user" wire:navigate title="Kelola user"
-           class="w-9 h-9 rounded-full bg-white/80 backdrop-blur border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-        </a>
-        @endif
-        <a href="/profil" title="Profil &amp; keluar"
-           class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-        </a>
-    </div>
-    @endauth
-
+    @if(auth()->user()?->isAdmin())
     <!-- Global Modal Input Stok -->
     <livewire:input-stok />
     
     <!-- Global Modal Detail HP -->
     <livewire:detail-hp />
+    @endif
 
 </body>
 </html>

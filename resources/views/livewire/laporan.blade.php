@@ -1,6 +1,6 @@
 <div class="pb-24">
     <!-- Header & Filter -->
-    <div class="bg-white p-4 sticky top-0 z-30 shadow-sm border-b border-gray-200">
+    <div class="bg-white p-4 sticky top-14 z-30 shadow-sm border-b border-gray-200">
         <h1 class="text-xl font-bold text-gray-800 mb-4">Laporan Penjualan</h1>
         
         <div class="flex gap-2">

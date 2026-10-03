@@ -1,18 +1,17 @@
 <div>
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800">Halo, Bos! 👋</h1>
-            <p class="text-gray-500 text-sm">Pantau bisnismu hari ini.</p>
-        </div>
-        <div class="avatar placeholder">
-            <div class="bg-neutral text-neutral-content rounded-full w-10">
-                <span class="text-xs">ADM</span>
-            </div>
-        </div>
+    <!-- Header (avatar & role sudah ditampilkan layout di kanan-atas) -->
+    <div class="mb-6">
+        @if($isAdmin)
+        <h1 class="text-2xl font-bold text-gray-800">Halo, Bos! 👋</h1>
+        <p class="text-gray-500 text-sm">Pantau bisnismu hari ini.</p>
+        @else
+        <h1 class="text-2xl font-bold text-gray-800">Halo, {{ auth()->user()->name }}! 👋</h1>
+        <p class="text-gray-500 text-sm">Semangat jualan hari ini.</p>
+        @endif
     </div>
 
     <!-- Stats Cards -->
+    @if($isAdmin)
     <div class="grid grid-cols-2 gap-4 mb-6">
         <!-- Card 1: Profit Hari Ini -->
         <div class="card bg-white shadow-sm border border-gray-100">
@@ -40,8 +39,30 @@
             </div>
         </div>
     </div>
+    @else
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <!-- Karyawan: Stok Ready (tanpa info modal) -->
+        <div class="card bg-white shadow-sm border border-gray-100">
+            <div class="card-body p-4">
+                <h2 class="card-title text-sm text-gray-500">Stok Ready</h2>
+                <p class="text-2xl font-bold text-blue-600">{{ $stokReadyCount }} Unit</p>
+                <div class="text-xs text-gray-400">Siap dijual</div>
+            </div>
+        </div>
 
-    <!-- Chart Section -->
+        <!-- Karyawan: Unit Terjual Hari Ini -->
+        <div class="card bg-white shadow-sm border border-gray-100">
+            <div class="card-body p-4">
+                <h2 class="card-title text-sm text-gray-500">Terjual Hari Ini</h2>
+                <p class="text-2xl font-bold text-green-600">{{ $terjualHariIni }} Unit</p>
+                <div class="text-xs text-gray-400">Total penjualan</div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Chart Section (khusus admin: berisi data modal & profit) -->
+    @if($isAdmin)
     <div class="card bg-white shadow-sm border border-gray-100 mb-6">
         <div class="card-body p-4">
             <h3 class="font-bold text-gray-800 mb-2">Analisa 7 Hari Terakhir</h3>
@@ -122,6 +143,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Recent Activity -->
     <div class="mb-4">
@@ -136,7 +158,9 @@
                     </div>
                     <div class="flex-1">
                         <h4 class="font-semibold text-sm">{{ $activity['title'] }}</h4>
+                        @if($isAdmin)
                         <p class="text-xs text-gray-500">{{ $activity['desc'] }}</p>
+                        @endif
                     </div>
                     <span class="text-xs text-gray-400">{{ $activity['date']->diffForHumans() }}</span>
                 </div>

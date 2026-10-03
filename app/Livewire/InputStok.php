@@ -24,6 +24,13 @@ class InputStok extends Component
     public $bulkItems = []; // Array of items
     public $total_borongan = 0;
 
+    private function authorizeAdmin(): void
+    {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa mengelola stok.');
+        }
+    }
+
     protected $rules = [
         'imei' => 'required|unique:hps,imei',
         'merk_model' => 'required',
@@ -42,6 +49,7 @@ class InputStok extends Component
     // --- Logic Satuan ---
     public function save()
     {
+        $this->authorizeAdmin();
         $this->validate();
 
         DB::transaction(function () {
@@ -79,6 +87,8 @@ class InputStok extends Component
     // --- Logic Borongan ---
     public function addBulkItem()
     {
+        $this->authorizeAdmin();
+
         $this->validate([
             'imei' => 'required|unique:hps,imei',
             'merk_model' => 'required',
@@ -125,6 +135,8 @@ class InputStok extends Component
 
     public function saveBulk()
     {
+        $this->authorizeAdmin();
+
         $this->validate([
             'sumber_beli' => 'required|string',
             'bulkItems' => 'required|array|min:1',

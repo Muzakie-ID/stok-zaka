@@ -68,7 +68,6 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-2xl text-gray-800">{{ $hp->merk_model }}</h3>
-                            <p class="text-sm text-gray-500 font-mono mt-1">{{ $hp->imei }}</p>
                             
                             <!-- Warna & Minus -->
                             <div class="mt-2 flex flex-wrap gap-2">

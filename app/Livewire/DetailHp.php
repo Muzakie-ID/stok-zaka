@@ -25,11 +25,19 @@ class DetailHp extends Component
 
     public function toggleServiceForm()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa mengelola service.');
+        }
+
         $this->showServiceForm = !$this->showServiceForm;
     }
 
     public function toggleEdit()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa edit data HP.');
+        }
+
         $this->isEditing = !$this->isEditing;
         if ($this->isEditing && $this->hp) {
             $this->edit_merk_model = $this->hp->merk_model;
@@ -42,6 +50,10 @@ class DetailHp extends Component
 
     public function updateHp()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa edit data HP.');
+        }
+
         $this->validate([
             'edit_merk_model' => 'required|string',
             'edit_warna' => 'nullable|string',
@@ -68,6 +80,10 @@ class DetailHp extends Component
 
     public function deleteHp()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa hapus HP.');
+        }
+
         if ($this->hp) {
             $this->hp->delete();
             $this->dispatch('stok-saved');
@@ -86,6 +102,10 @@ class DetailHp extends Component
 
     public function saveService()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa mengelola service.');
+        }
+
         $this->validate([
             'deskripsi_service' => 'required|string',
             'biaya_service' => 'required|numeric|min:0',
@@ -129,6 +149,10 @@ class DetailHp extends Component
 
     public function markAsReady()
     {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Hanya admin yang bisa ubah status HP.');
+        }
+
         if ($this->hp) {
             $this->hp->update(['status' => 'READY']);
             $this->hp->refresh();
