@@ -50,6 +50,7 @@
         </div>
 
 
+        @if(auth()->user()?->isAdmin())
         <!-- Service -->
         <a href="/service" wire:navigate class="flex flex-col items-center justify-center w-full h-full {{ request()->is('service*') ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,7 +72,26 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             <span class="text-[10px] font-semibold">Laporan</span>
         </a>
+        @endif
     </div>
+
+    @auth
+    <div class="fixed top-0 right-0 z-50 p-3 flex items-center gap-2">
+        <span class="hidden sm:inline text-xs font-semibold text-slate-500 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-slate-100">
+            {{ auth()->user()->name }} &middot; {{ auth()->user()->roleLabel() }}
+        </span>
+        @if(auth()->user()?->isAdmin())
+        <a href="/kelola-user" wire:navigate title="Kelola user"
+           class="w-9 h-9 rounded-full bg-white/80 backdrop-blur border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        </a>
+        @endif
+        <a href="/profil" title="Profil &amp; keluar"
+           class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
+            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+        </a>
+    </div>
+    @endauth
 
     <!-- Global Modal Input Stok -->
     <livewire:input-stok />
