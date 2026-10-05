@@ -8,7 +8,9 @@
         <!-- Saldo Card -->
         <div class="card bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-xl">
             <div class="card-body p-5">
-                <h2 class="text-sm font-medium opacity-80">Saldo Tercair</h2>
+                <h2 class="text-sm font-medium opacity-80">
+                    {{ $periode === 'minggu' ? 'Upah Minggu Ini' : ($periode === 'bulan' ? 'Upah Bulan Ini' : 'Saldo Tercair') }}
+                </h2>
                 <p class="text-4xl font-bold">Rp {{ number_format($saldo, 0, ',', '.') }}</p>
                 <div class="flex gap-4 mt-2">
                     <div class="text-xs">
@@ -26,10 +28,22 @@
         <!-- Riwayat -->
         <div class="card bg-white shadow-sm border border-gray-100">
             <div class="card-body p-4">
-                <h3 class="font-bold text-gray-800 mb-3">Riwayat Upah</h3>
+                <div class="flex justify-between items-center mb-3 gap-2">
+                    <h3 class="font-bold text-gray-800">Riwayat Upah</h3>
+                    <div class="join">
+                        @foreach (['all' => 'Semua', 'bulan' => 'Bulan Ini', 'minggu' => 'Minggu Ini'] as $val => $label)
+                            <button wire:click="$set('periode', '{{ $val }}')"
+                                    class="join-item btn btn-xs rounded-none first:rounded-l-lg last:rounded-r-lg border-0 {{ $periode === $val ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-500' }}">
+                                {{ $label }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
 
                 @if ($riwayat->isEmpty())
-                    <p class="text-sm text-gray-400 text-center py-8">Belum ada upah dari admin.</p>
+                    <p class="text-sm text-gray-400 text-center py-8">
+                        {{ $periode === 'all' ? 'Belum ada upah dari admin.' : 'Belum ada upah di periode ini.' }}
+                    </p>
                 @else
                     <div class="space-y-2">
                         @foreach ($riwayat as $r)
