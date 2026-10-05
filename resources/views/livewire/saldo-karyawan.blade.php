@@ -80,10 +80,17 @@
                         <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
                     </div>
                     <div class="p-6 pt-2">
-                        <h3 class="font-bold text-xl text-gray-800 mb-1">
-                            {{ $type === 'paid' ? 'Cairkan Upah' : 'Kasih Upah' }}
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-4">Untuk: <span class="font-semibold text-gray-700">{{ $userName }}</span></p>
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="font-bold text-xl text-gray-800 mb-1">
+                                    {{ $type === 'paid' ? 'Cairkan Upah' : 'Kasih Upah' }}
+                                </h3>
+                                <p class="text-sm text-gray-500">Untuk: <span class="font-semibold text-gray-700">{{ $userName }}</span></p>
+                            </div>
+                            <button type="button" onclick="modal_upah_{{ $k->id }}.close()" class="btn btn-sm btn-circle btn-ghost text-gray-500 -mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
 
                         <form wire:submit="simpan" class="space-y-4">
                             <!-- Pilihan jenis -->

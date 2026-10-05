@@ -100,7 +100,7 @@
             
             {{-- Search --}}
             <div class="form-control mb-4">
-                <input type="text" wire:model.live="search" placeholder="Cari Merk/Model atau IMEI..." class="input input-bordered w-full" />
+                <input type="text" wire:model.live="search" placeholder="Cari Merk/Model, IMEI, atau kode label..." class="input input-bordered w-full" />
             </div>
 
             {{-- List Barang --}}

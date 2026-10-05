@@ -256,7 +256,9 @@ class Penjualan extends Component
             $hps = Hp::where('status', 'READY')
                 ->where(function($q) {
                     $q->where('merk_model', 'like', '%'.$this->search.'%')
-                      ->orWhere('imei', 'like', '%'.$this->search.'%');
+                      ->orWhere('imei', 'like', '%'.$this->search.'%')
+                      // Kode label barcode = 4 digit terakhir IMEI
+                      ->orWhereRaw('RIGHT(REGEXP_REPLACE(imei, "[^0-9]", ""), 4) = ?', [preg_replace('/[^0-9]/', '', $this->search)]);
                 })
                 ->get();
         } else {
