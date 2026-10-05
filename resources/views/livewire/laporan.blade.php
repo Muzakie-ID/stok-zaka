@@ -82,7 +82,9 @@
                                             @endif
                                         </div>
                                         <div class="text-right">
-                                            <div class="font-bold text-green-600">+ Rp {{ number_format($item->laba_rugi, 0, ',', '.') }}</div>
+                                            <div class="font-bold {{ ($item->laba_rugi ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                {{ ($item->laba_rugi ?? 0) >= 0 ? '+' : '' }} Rp {{ number_format($item->laba_rugi ?? 0, 0, ',', '.') }}
+                                            </div>
                                             <div class="text-xs text-gray-400">
                                                 Jual: {{ number_format($item->harga_jual_unit, 0, ',', '.') }}
                                             </div>
@@ -150,7 +152,7 @@
                     <div class="card-body p-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs text-gray-500">Harga Beli Awal</span>
-                            <span class="font-semibold text-gray-700">Rp {{ number_format($selectedDetail->hp->harga_beli_awal, 0, ',', '.') }}</span>
+                            <span class="font-semibold text-gray-700">Rp {{ number_format($selectedDetail->hp->harga_beli_awal ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs text-gray-500">Sumber Beli</span>
@@ -159,7 +161,7 @@
                         
                         <!-- Biaya Service -->
                         @php 
-                            $biayaService = $selectedDetail->hp->total_modal - $selectedDetail->hp->harga_beli_awal;
+                            $biayaService = ($selectedDetail->hp->total_modal ?? 0) - ($selectedDetail->hp->harga_beli_awal ?? 0);
                         @endphp
                         @if($biayaService > 0)
                         <div class="flex justify-between items-center mb-2">
@@ -172,7 +174,7 @@
                         
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-sm font-bold text-gray-600">Total Modal</span>
-                            <span class="text-sm font-bold text-gray-600">Rp {{ number_format($selectedDetail->modal_terakhir, 0, ',', '.') }}</span>
+                            <span class="text-sm font-bold text-gray-600">Rp {{ number_format($selectedDetail->modal_terakhir ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-sm font-bold text-blue-800">Harga Jual</span>
@@ -183,8 +185,8 @@
                         
                         <div class="flex justify-between items-center">
                             <span class="text-sm font-bold text-gray-800">Keuntungan Bersih</span>
-                            <span class="text-xl font-bold {{ $selectedDetail->laba_rugi >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $selectedDetail->laba_rugi >= 0 ? '+' : '' }} Rp {{ number_format($selectedDetail->laba_rugi, 0, ',', '.') }}
+                            <span class="text-xl font-bold {{ ($selectedDetail->laba_rugi ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                {{ ($selectedDetail->laba_rugi ?? 0) >= 0 ? '+' : '' }} Rp {{ number_format($selectedDetail->laba_rugi ?? 0, 0, ',', '.') }}
                             </span>
                         </div>
                     </div>

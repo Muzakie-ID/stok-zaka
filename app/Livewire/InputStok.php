@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class InputStok extends Component
 {
     public $mode = 'satuan'; // 'satuan' atau 'borongan'
-    
+
     // Form Fields
     public $imei;
     public $merk_model;
@@ -24,21 +24,28 @@ class InputStok extends Component
     public $bulkItems = []; // Array of items
     public $total_borongan = 0;
 
-    private function authorizeAdmin(): void
+    /** Karyawan hanya input data unit, tanpa harga modal. */
+    public function isKaryawan(): bool
     {
-        if (! auth()->user()?->isAdmin()) {
-            abort(403, 'Hanya admin yang bisa mengelola stok.');
-        }
+        return ! auth()->user()?->isAdmin();
     }
 
-    protected $rules = [
-        'imei' => 'required|unique:hps,imei',
-        'merk_model' => 'required',
-        'warna' => 'nullable|string',
-        'keterangan_minus' => 'nullable|string',
-        'harga_beli_awal' => 'required|numeric|min:0',
-        'sumber_beli' => 'nullable|string',
-    ];
+    protected function rules(): array
+    {
+        $rules = [
+            'imei' => 'required|unique:hps,imei',
+            'merk_model' => 'required',
+            'warna' => 'nullable|string',
+            'keterangan_minus' => 'nullable|string',
+        ];
+
+        if (! $this->isKaryawan()) {
+            $rules['harga_beli_awal'] = 'required|numeric|min:0';
+            $rules['sumber_beli'] = 'nullable|string';
+        }
+
+        return $rules;
+    }
 
     public function setMode($mode)
     {
@@ -49,7 +56,6 @@ class InputStok extends Component
     // --- Logic Satuan ---
     public function save()
     {
-        $this->authorizeAdmin();
         $this->validate();
 
         DB::transaction(function () {
@@ -58,14 +64,15 @@ class InputStok extends Component
                 'merk_model' => $this->merk_model,
                 'warna' => $this->warna,
                 'keterangan_minus' => $this->keterangan_minus,
-                'harga_beli_awal' => $this->harga_beli_awal,
-                'total_modal' => $this->harga_beli_awal,
-                'sumber_beli' => $this->sumber_beli,
+                'harga_beli_awal' => $this->isKaryawan() ? null : $this->harga_beli_awal,
+                'total_modal' => $this->isKaryawan() ? null : $this->harga_beli_awal,
+                'sumber_beli' => $this->isKaryawan() ? null : $this->sumber_beli,
                 'status' => 'READY',
+                'ditambahkan_oleh' => auth()->id(),
             ]);
 
             // Catat Pengeluaran Kas (Hanya jika belum dibayar sebelumnya)
-            if (!$this->sudah_bayar) {
+            if (! $this->isKaryawan() && !$this->sudah_bayar) {
                 CashFlow::create([
                     'date' => now(),
                     'type' => 'expense',
@@ -79,23 +86,25 @@ class InputStok extends Component
         });
 
         $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'sumber_beli', 'sudah_bayar']);
-        
-        $this->dispatch('stok-saved'); 
+
+        session()->flash('message', $this->isKaryawan()
+            ? 'Stok tersimpan. Menunggu admin melengkapi harga modal.'
+            : 'Stok berhasil disimpan.');
+        $this->dispatch('stok-saved');
         $this->dispatch('close-modal');
     }
 
     // --- Logic Borongan ---
     public function addBulkItem()
     {
-        $this->authorizeAdmin();
-
         $this->validate([
             'imei' => 'required|unique:hps,imei',
             'merk_model' => 'required',
             'warna' => 'nullable|string',
             'keterangan_minus' => 'nullable|string',
+        ] + ($this->isKaryawan() ? [] : [
             'harga_beli_awal' => 'required|numeric|min:0',
-        ]);
+        ]));
 
         // Cek duplikasi IMEI di list sementara
         foreach ($this->bulkItems as $item) {
@@ -110,7 +119,7 @@ class InputStok extends Component
             'merk_model' => $this->merk_model,
             'warna' => $this->warna,
             'keterangan_minus' => $this->keterangan_minus,
-            'harga_beli_awal' => $this->harga_beli_awal,
+            'harga_beli_awal' => $this->isKaryawan() ? null : $this->harga_beli_awal,
         ];
 
         $this->calculateTotalBorongan();
@@ -135,12 +144,11 @@ class InputStok extends Component
 
     public function saveBulk()
     {
-        $this->authorizeAdmin();
-
         $this->validate([
-            'sumber_beli' => 'required|string',
             'bulkItems' => 'required|array|min:1',
-        ]);
+        ] + ($this->isKaryawan() ? [] : [
+            'sumber_beli' => 'required|string',
+        ]));
 
         DB::transaction(function () {
             foreach ($this->bulkItems as $item) {
@@ -149,15 +157,17 @@ class InputStok extends Component
                     'merk_model' => $item['merk_model'],
                     'warna' => $item['warna'] ?? null,
                     'keterangan_minus' => $item['keterangan_minus'] ?? null,
-                    'harga_beli_awal' => $item['harga_beli_awal'],
-                    'total_modal' => $item['harga_beli_awal'],
-                    'sumber_beli' => $this->sumber_beli,
+                    'harga_beli_awal' => $this->isKaryawan() ? null : ($item['harga_beli_awal'] ?? null),
+                    'total_modal' => $this->isKaryawan() ? null : ($item['harga_beli_awal'] ?? null),
+                    'sumber_beli' => $this->isKaryawan() ? null : $this->sumber_beli,
                     'status' => 'READY',
+                    'ditambahkan_oleh' => auth()->id(),
                 ]);
             }
 
+
             // Catat Pengeluaran Kas (Total Borongan) - Hanya jika belum lunas
-            if (!$this->sudah_bayar) {
+            if (! $this->isKaryawan() && !$this->sudah_bayar) {
                 CashFlow::create([
                     'date' => now(),
                     'type' => 'expense',
@@ -168,9 +178,13 @@ class InputStok extends Component
             }
         });
 
+        $jumlahItem = count($this->bulkItems);
         $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'sumber_beli', 'bulkItems', 'total_borongan', 'sudah_bayar']);
-        
-        $this->dispatch('stok-saved'); 
+
+        session()->flash('message', $this->isKaryawan()
+            ? "{$jumlahItem} stok tersimpan. Menunggu admin melengkapi harga modal."
+            : 'Stok borongan berhasil disimpan.');
+        $this->dispatch('stok-saved');
         $this->dispatch('close-modal');
     }
 

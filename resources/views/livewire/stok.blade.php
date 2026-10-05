@@ -48,6 +48,15 @@
                             Sumber: {{ $hp->sumber_beli ?? '-' }}
                         </div>
                         
+                        @if($hp->modalBelumDiisi())
+                        <!-- Modal belum diisi (biasanya inputan karyawan) -->
+                        <div class="text-right">
+                            <div class="badge badge-warning badge-sm text-white mb-0.5">⏳ Modal belum diisi</div>
+                            @if($hp->pelacak)
+                            <div class="text-[10px] text-gray-400">Diinput: {{ $hp->pelacak->name }}</div>
+                            @endif
+                        </div>
+                        @else
                         <!-- Total Modal Selalu Terlihat -->
                         <div class="text-right">
                             <p class="text-xs text-gray-400 mb-0.5">Total Modal</p>
@@ -55,6 +64,7 @@
                                 Rp {{ number_format($hp->total_modal, 0, ',', '.') }}
                             </div>
                         </div>
+                        @endif
                         @else
                         <!-- Karyawan: info sensitif (modal/sumber) disembunyikan -->
                         <div class="text-xs text-gray-400">
@@ -72,9 +82,7 @@
                 </div>
                 <h3 class="font-bold text-gray-500">Gudang Kosong</h3>
                 <p class="text-sm text-gray-400 mt-1">Belum ada stok HP masuk.</p>
-                @if(auth()->user()?->isAdmin())
                 <button onclick="modal_input_stok.showModal()" class="btn btn-sm btn-primary mt-4">Tambah Stok</button>
-                @endif
             </div>
         @endforelse
     </div>

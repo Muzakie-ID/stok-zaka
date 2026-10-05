@@ -34,7 +34,11 @@
             <div class="card-body p-4">
                 <h2 class="card-title text-sm text-gray-500">Stok Ready</h2>
                 <p class="text-2xl font-bold text-blue-600">{{ $stokReadyCount }} Unit</p>
+                @if($stokModalBelumDiisi > 0)
+                <a href="/stok" wire:navigate class="badge badge-warning badge-sm text-white">⏳ {{ $stokModalBelumDiisi }} modal belum diisi</a>
+                @else
                 <div class="text-xs text-gray-400">Modal: Rp {{ number_format($totalModalStok, 0, ',', '.') }}</div>
+                @endif
             </div>
         </div>
     </div>

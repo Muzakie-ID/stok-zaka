@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Penjualan extends Model
 {
-    protected $fillable = ['nama_pembeli', 'wa_pembeli', 'total_transaksi', 'tanggal_jual'];
+    protected $fillable = ['nama_pembeli', 'wa_pembeli', 'total_transaksi', 'tanggal_jual', 'user_id'];
 
     /**
      * Nomor WhatsApp pembeli dalam format internasional (628xxx).
@@ -32,5 +32,11 @@ class Penjualan extends Model
     public function details()
     {
         return $this->hasMany(DetailPenjualan::class, 'penjualan_id');
+    }
+
+    /** User (admin/karyawan) yang mencatat penjualan ini. */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

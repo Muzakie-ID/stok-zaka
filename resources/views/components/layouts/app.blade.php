@@ -76,14 +76,12 @@
             <span class="text-[10px] font-semibold">Jual</span>
         </a>
 
-        <!-- Add Button (Center, khusus admin) -->
-        @if(auth()->user()?->isAdmin())
+        <!-- Add Button (Center, semua user bisa tambah stok) -->
         <div class="relative -top-6">
             <button onclick="modal_input_stok.showModal()" class="bg-emerald-600 text-white rounded-2xl h-12 w-12 shadow-[0_8px_20px_rgba(16,185,129,0.3)] grid place-items-center hover:bg-emerald-700 transition-all active:scale-90 border-4 border-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             </button>
         </div>
-        @endif
 
 
         @if(auth()->user()?->isAdmin())
@@ -111,11 +109,11 @@
         @endif
     </div>
 
-    @if(auth()->user()?->isAdmin())
-    <!-- Global Modal Input Stok -->
+    <!-- Global Modal Input Stok (semua user: karyawan input tanpa modal) -->
     <livewire:input-stok />
     
-    <!-- Global Modal Detail HP -->
+    @if(auth()->user()?->isAdmin())
+    <!-- Global Modal Detail HP (admin saja) -->
     <livewire:detail-hp />
     @endif
 

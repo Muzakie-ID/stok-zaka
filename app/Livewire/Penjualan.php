@@ -31,6 +31,14 @@ class Penjualan extends Component
 
     public function toggleSelection($hpId)
     {
+        $hp = Hp::find($hpId);
+
+        // Unit yang modalnya belum diisi (inputan karyawan) belum bisa dijual
+        if ($hp && $hp->modalBelumDiisi()) {
+            session()->flash('error', "{$hp->merk_model} ({$hp->imei}) masih menunggu harga modal diisi admin, belum bisa dijual.");
+            return;
+        }
+
         if (in_array($hpId, $this->selectedHps)) {
             $this->selectedHps = array_diff($this->selectedHps, [$hpId]);
         } else {
@@ -43,8 +51,26 @@ class Penjualan extends Component
         if (empty($this->selectedHps)) {
             return; // Harus pilih minimal 1
         }
+
+        // Buang unit yang modalnya belum diisi — tidak boleh lanjut ke checkout
+        $validIds = Hp::whereIn('id', $this->selectedHps)
+            ->whereNotNull('total_modal')
+            ->whereNotNull('harga_beli_awal')
+            ->pluck('id')
+            ->all();
+
+        $jumlahBlokir = count($this->selectedHps) - count($validIds);
+        if ($jumlahBlokir > 0) {
+            $this->selectedHps = array_values($validIds);
+            session()->flash('error', "{$jumlahBlokir} unit tidak bisa dijual karena harga modal belum diisi admin. Unit tersebut dihapus dari pilihan.");
+
+            if (empty($this->selectedHps)) {
+                return;
+            }
+        }
+
         $this->step = 2;
-        
+
         // Inisialisasi array harga jual dengan 0
         foreach ($this->selectedHps as $id) {
             $this->harga_jual_items[$id] = 0;
@@ -131,6 +157,17 @@ class Penjualan extends Component
 
     public function processPenjualan()
     {
+        // Guard terakhir: unit tanpa modal (inputan karyawan yang belum dilengkapi admin) tidak boleh terjual
+        $jumlahBlokir = Hp::whereIn('id', $this->selectedHps)
+            ->where(fn ($q) => $q->whereNull('total_modal')->orWhereNull('harga_beli_awal'))
+            ->count();
+        if ($jumlahBlokir > 0) {
+            session()->flash('error', "{$jumlahBlokir} unit belum bisa dijual karena harga modal belum diisi admin.");
+            $this->step = 1;
+            $this->selectedHps = [];
+            return;
+        }
+
         $this->validate([
             'nama_pembeli' => 'nullable|string',
             'wa_pembeli' => 'nullable|string|max:30',
@@ -149,12 +186,13 @@ class Penjualan extends Component
         }
 
         DB::transaction(function () {
-            // 1. Buat Header Penjualan
+            // 1. Buat Header Penjualan (catat siapa yang menjual)
             $penjualan = PenjualanModel::create([
                 'nama_pembeli' => $this->nama_pembeli,
                 'wa_pembeli' => $this->wa_pembeli,
                 'total_transaksi' => $this->total_transaksi,
                 'tanggal_jual' => now(),
+                'user_id' => auth()->id(),
             ]);
 
             // 2. Buat Detail & Update Stok
@@ -165,9 +203,10 @@ class Penjualan extends Component
                 DetailPenjualan::create([
                     'penjualan_id' => $penjualan->id,
                     'hp_id' => $hp->id,
+                    // Unit tanpa modal (inputan karyawan) → modal & laba null, dihitung saat admin mengisi modal
                     'modal_terakhir' => $hp->total_modal,
                     'harga_jual_unit' => $hargaJual,
-                    'laba_rugi' => $hargaJual - $hp->total_modal,
+                    'laba_rugi' => $hp->total_modal !== null ? $hargaJual - $hp->total_modal : null,
                 ]);
 
                 // Update Status HP
@@ -194,7 +233,7 @@ class Penjualan extends Component
     public function render()
     {
         if ($this->viewMode == 'history') {
-            $history = PenjualanModel::with(['details.hp'])
+            $history = PenjualanModel::with(['details.hp', 'user'])
                 ->where(function($q) {
                     $q->where('nama_pembeli', 'like', '%'.$this->historySearch.'%')
                       ->orWhereHas('details.hp', function($subQ) {

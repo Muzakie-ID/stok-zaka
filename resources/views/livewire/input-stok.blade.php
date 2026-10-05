@@ -63,6 +63,7 @@
                             </div>
                         </div>
 
+                        @if(auth()->user()?->isAdmin())
                         <div class="grid grid-cols-2 gap-4">
                             <!-- Harga Beli -->
                             <div class="form-control w-full">
@@ -93,7 +94,7 @@
                             </div>
                         </div>
 
-                        <!-- Checkbox Stok Pending -->
+                        <!-- Checkbox Stok Pending (khusus admin) -->
                         <div class="form-control">
                             <label class="label cursor-pointer justify-start gap-4">
                                 <input type="checkbox" wire:model="sudah_bayar" class="checkbox checkbox-primary" /> 
@@ -103,6 +104,7 @@
                                 </div>
                             </label>
                         </div>
+                        @endif
 
                         <!-- Actions -->
                         <div class="pt-2">
@@ -115,7 +117,8 @@
                 @else
                     <!-- FORM BORONGAN -->
                     <div class="space-y-4">
-                        <!-- Sumber Beli (Global) -->
+                        <!-- Sumber Beli (Global, khusus admin) -->
+                        @if(auth()->user()?->isAdmin())
                         <div class="form-control w-full">
                             <label class="label py-1">
                                 <span class="label-text font-medium text-gray-600">Sumber Beli (Borongan)</span>
@@ -123,6 +126,7 @@
                             <input wire:model="sumber_beli" type="text" placeholder="Contoh: Pak Budi" class="input input-bordered w-full rounded-xl bg-gray-50 focus:bg-white transition-colors @error('sumber_beli') input-error @enderror" />
                             @error('sumber_beli') <span class="text-error text-xs mt-1 ml-1">{{ $message }}</span> @enderror
                         </div>
+                        @endif
 
                         <!-- List Item Sementara -->
                         @if(count($bulkItems) > 0)
@@ -142,7 +146,9 @@
                                                 @endif
                                             </div>
                                             <div class="flex items-center gap-2">
+                                                @if(auth()->user()?->isAdmin())
                                                 <span class="text-sm font-semibold text-gray-600">Rp {{ number_format($item['harga_beli_awal'], 0, ',', '.') }}</span>
+                                                @endif
                                                 <button wire:click="removeBulkItem({{ $index }})" class="btn btn-xs btn-circle btn-ghost text-red-500">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                                 </button>
@@ -150,10 +156,12 @@
                                         </div>
                                     @endforeach
                                 </div>
+                                @if(auth()->user()?->isAdmin())
                                 <div class="flex justify-between items-center mt-3 pt-2 border-t border-gray-200">
                                     <span class="text-sm font-bold text-gray-600">Total Borongan:</span>
                                     <span class="text-lg font-bold text-primary">Rp {{ number_format($total_borongan, 0, ',', '.') }}</span>
                                 </div>
+                                @endif
                             </div>
                         @endif
 
@@ -177,6 +185,7 @@
                                     <input wire:model="keterangan_minus" type="text" placeholder="Minus (Opsional)" class="input input-sm input-bordered w-full" />
                                 </div>
                                 
+                                @if(auth()->user()?->isAdmin())
                                 <div class="relative" x-data="{
                                     price: @entangle('harga_beli_awal'),
                                     format(val) { return val ? new Intl.NumberFormat('id-ID').format(val) : '' },
@@ -190,6 +199,7 @@
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">Rp</span>
                                 </div>
                                 @error('harga_beli_awal') <span class="text-error text-xs">{{ $message }}</span> @enderror
+                                @endif
 
                                 <button wire:click="addBulkItem" class="btn btn-sm btn-secondary w-full text-white">
                                     + Tambah ke Daftar
@@ -198,7 +208,8 @@
                         </div>
 
                         <div class="pt-2">
-                             <!-- Checkbox Stok Pending -->
+                             <!-- Checkbox Stok Pending (khusus admin) -->
+                             @if(auth()->user()?->isAdmin())
                              <div class="form-control mb-4">
                                 <label class="label cursor-pointer justify-start gap-4">
                                     <input type="checkbox" wire:model="sudah_bayar" class="checkbox checkbox-primary" /> 
@@ -208,6 +219,7 @@
                                     </div>
                                 </label>
                             </div>
+                            @endif
 
                             <button wire:click="saveBulk" class="btn btn-primary w-full rounded-xl text-lg font-bold shadow-lg shadow-blue-200" {{ count($bulkItems) == 0 ? 'disabled' : '' }}>
                                 <span wire:loading.remove>Simpan Semua ({{ count($bulkItems) }} Item)</span>

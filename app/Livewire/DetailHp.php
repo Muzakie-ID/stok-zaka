@@ -63,7 +63,8 @@ class DetailHp extends Component
         ]);
 
         // Hitung selisih harga beli jika berubah, untuk update total modal
-        $selisih = $this->edit_harga_beli_awal - $this->hp->harga_beli_awal;
+        // Unit inputan karyawan: modal masih null → dihitung dari 0
+        $selisih = $this->edit_harga_beli_awal - ($this->hp->harga_beli_awal ?? 0);
         
         $this->hp->update([
             'merk_model' => $this->edit_merk_model,
@@ -71,7 +72,7 @@ class DetailHp extends Component
             'keterangan_minus' => $this->edit_minus,
             'sumber_beli' => $this->edit_sumber_beli,
             'harga_beli_awal' => $this->edit_harga_beli_awal,
-            'total_modal' => $this->hp->total_modal + $selisih,
+            'total_modal' => ($this->hp->total_modal ?? 0) + $selisih,
         ]);
 
         $this->isEditing = false;
@@ -132,8 +133,8 @@ class DetailHp extends Component
             ]);
         }
 
-        // 2. Update Total Modal HP
-        $this->hp->total_modal += $this->biaya_service;
+        // 2. Update Total Modal HP (null-safe untuk unit inputan karyawan)
+        $this->hp->total_modal = ($this->hp->total_modal ?? 0) + $this->biaya_service;
         $this->hp->status = 'SERVICE'; // Ubah status jadi SERVICE sementara? Atau tetap READY?
         $this->hp->save();
 

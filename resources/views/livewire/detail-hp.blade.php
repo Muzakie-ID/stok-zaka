@@ -103,6 +103,7 @@
                     </div>
 
                     <!-- Financial Card -->
+                    @if(!$hp->modalBelumDiisi())
                     <div class="card bg-blue-50 border border-blue-100 mb-6">
                         <div class="card-body p-4">
                             <div class="flex justify-between items-center mb-2">
@@ -124,6 +125,27 @@
                             </div>
                         </div>
                     </div>
+                    @else
+                    @if(auth()->user()?->isAdmin())
+                    <!-- Modal belum diisi: tombol langsung isi tanpa lewat menu Edit -->
+                    <div class="card bg-amber-50 border border-amber-200 mb-6">
+                        <div class="card-body p-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">⏳</span>
+                                <div class="flex-1">
+                                    <div class="font-bold text-amber-800 text-sm">Harga modal belum diisi</div>
+                                    @if($hp->pelacak)
+                                    <div class="text-[10px] text-amber-500 mt-0.5">Diinput oleh: {{ $hp->pelacak->name }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                            <button wire:click="toggleEdit" class="btn btn-sm btn-warning text-white w-full mt-3 rounded-xl font-bold">
+                                💰 Isi Harga Modal
+                            </button>
+                        </div>
+                    </div>
+                    @endif
+                    @endif
 
                 <!-- Service History Section -->
                 <div class="mb-6">

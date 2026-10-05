@@ -25,7 +25,10 @@ class Home extends Component
         }
 
         $stokReadyCount = Hp::where('status', 'READY')->count();
-        $totalModalStok = Hp::where('status', 'READY')->sum('total_modal');
+        $totalModalStok = Hp::where('status', 'READY')->whereNotNull('total_modal')->sum('total_modal');
+        $stokModalBelumDiisi = Hp::where('status', 'READY')->where(function ($q) {
+            $q->whereNull('total_modal')->orWhereNull('harga_beli_awal');
+        })->count();
         $terjualHariIni = DetailPenjualan::whereDate('created_at', Carbon::today())->count();
 
         // 2. Aktivitas Terbaru (Gabungan Penjualan & Service)
@@ -88,6 +91,7 @@ class Home extends Component
             'profitTrend' => $profitTrend,
             'stokReadyCount' => $stokReadyCount,
             'totalModalStok' => $totalModalStok,
+            'stokModalBelumDiisi' => $stokModalBelumDiisi,
             'recentActivities' => $recentActivities,
             'chartDates' => $dates,
             'chartModal' => $chartData['modal'],

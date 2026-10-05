@@ -22,7 +22,7 @@
 
         <form method="POST" action="{{ route('logout') }}" class="mt-3">
             @csrf @method('DELETE')
-            <x-auth.button class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-none">
+            <x-auth.button variant="secondary">
                 Keluar
             </x-auth.button>
         </form>
