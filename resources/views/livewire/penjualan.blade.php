@@ -2,13 +2,15 @@
     {{-- Flash message (sukses/error) --}}
     <div class="px-4 pt-4">
         @if (session('error'))
-            <div class="rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 mb-2" role="alert">
-                ⚠️ {{ session('error') }}
+            <div class="rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 mb-2 flex items-center gap-2" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z" /></svg>
+                <span>{{ session('error') }}</span>
             </div>
         @endif
         @if (session('message'))
-            <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 mb-2" role="alert">
-                ✅ {{ session('message') }}
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3 mb-2 flex items-center gap-2" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>{{ session('message') }}</span>
             </div>
         @endif
     </div>
@@ -121,19 +123,19 @@
                                         <span class="badge badge-xs badge-error badge-outline">Minus: {{ $hp->keterangan_minus }}</span>
                                     @endif
                                     @if($modalBelumDiisi)
-                                        <span class="badge badge-warning badge-xs text-white">⏳ Menunggu modal admin</span>
+                                        <span class="badge badge-warning badge-xs text-white gap-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="inline-block w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Menunggu modal admin</span>
                                     @endif
                                 </div>
                                 <div class="text-sm font-semibold text-secondary mt-1">
                                     @if(auth()->user()?->isAdmin())
                                     Modal: Rp {{ number_format($hp->total_modal ?? 0, 0, ',', '.') }}
-                                    @if($modalBelumDiisi)<span class="badge badge-warning badge-xs text-white ml-1">⏳ Modal belum diisi</span>@endif
+                                    @if($modalBelumDiisi)<span class="badge badge-warning badge-xs text-white ml-1 gap-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="inline-block w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Modal belum diisi</span>@endif
                                     @endif
                                 </div>
                             </div>
                             <div>
                                 @if($modalBelumDiisi)
-                                    <span class="text-warning text-xl">🔒</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-warning"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
                                 @else
                                     <input type="checkbox" class="checkbox checkbox-primary pointer-events-none" {{ in_array($hp->id, $selectedHps) ? 'checked' : '' }} />
                                 @endif
@@ -323,8 +325,9 @@
                                 <div class="font-bold text-gray-800">{{ $trx->nama_pembeli ?: 'Tanpa Nama' }}</div>
                                 <div class="text-xs text-gray-500">{{ $trx->created_at->format('d M Y H:i') }}</div>
                                 @if($trx->user)
-                                    <div class="badge badge-ghost badge-sm mt-1 {{ $trx->user->isAdmin() ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50' }}">
-                                        🛍 {{ $trx->user->name }}{{ $trx->user->isAdmin() ? ' (Admin)' : '' }}
+                                    <div class="badge badge-ghost badge-sm mt-1 gap-1 {{ $trx->user->isAdmin() ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50' }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="inline-block w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                                        {{ $trx->user->name }}{{ $trx->user->isAdmin() ? ' (Admin)' : '' }}
                                     </div>
                                 @endif
                                 @if($trx->wa_pembeli)

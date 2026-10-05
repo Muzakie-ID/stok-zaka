@@ -1,7 +1,7 @@
 <div>
     <!-- Header (avatar & role sudah ditampilkan layout di kanan-atas) -->
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Halo, {{ auth()->user()->name }}! 👋</h1>
+        <h1 class="text-2xl font-bold text-gray-800">Halo, {{ auth()->user()->name }}!</h1>
         @if($isAdmin)
         <p class="text-gray-500 text-sm">Pantau bisnismu hari ini.</p>
         @else
@@ -35,7 +35,7 @@
                 <h2 class="card-title text-sm text-gray-500">Stok Ready</h2>
                 <p class="text-2xl font-bold text-blue-600">{{ $stokReadyCount }} Unit</p>
                 @if($stokModalBelumDiisi > 0)
-                <a href="/stok" wire:navigate class="badge badge-warning badge-sm text-white">⏳ {{ $stokModalBelumDiisi }} modal belum diisi</a>
+                <a href="/stok" wire:navigate class="badge badge-warning badge-sm text-white gap-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="inline-block w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> {{ $stokModalBelumDiisi }} modal belum diisi</a>
                 @else
                 <div class="text-xs text-gray-400">Modal: Rp {{ number_format($totalModalStok, 0, ',', '.') }}</div>
                 @endif

@@ -31,20 +31,22 @@
                     {{ count($selected) }} label siap cetak
                 </span>
                 <button onclick="printLabels()" {{ count($selected) === 0 ? 'disabled' : '' }}
-                        class="btn btn-sm bg-slate-700 hover:bg-slate-800 text-white rounded-xl border-none">
-                    🖨️ Print A4
+                        class="btn btn-sm bg-slate-700 hover:bg-slate-800 text-white rounded-xl border-none gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5z" /></svg>
+                    Print A4
                 </button>
                 <button onclick="printBluetooth()" {{ count($selected) === 0 ? 'disabled' : '' }}
-                        class="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl border-none">
-                    📶 Bluetooth
+                        class="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl border-none gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" /></svg>
+                    Bluetooth
                 </button>
             </div>
         </div>
 
         <!-- Legenda -->
         <p class="text-[11px] text-gray-400 mb-3 leading-relaxed">
-            <span class="badge badge-xs bg-emerald-100 text-emerald-700 border-none align-middle mr-0.5">✓ Dicetak</span>
-            = label sudah pernah di-print. Tekan ikon <span class="font-bold">↺</span> di kartu jika label hilang &amp; mau cetak ulang.
+            <span class="badge badge-xs bg-emerald-100 text-emerald-700 border-none align-middle mr-0.5 gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="inline-block w-2.5 h-2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg> Dicetak</span>
+            = label sudah pernah di-print. Tekan ikon <span class="font-bold">panah melingkar</span> di kartu jika label hilang &amp; mau cetak ulang.
         </p>
 
         <!-- Grid unit READY -->
@@ -63,7 +65,7 @@
                                 @if($sudahCetak)
                                     <span class="badge badge-xs bg-emerald-100 text-emerald-700 border-none shrink-0 gap-0.5"
                                           title="Dicetak {{ $hp->label_printed_at->translatedFormat('d M Y H:i') }}">
-                                        ✓ Dicetak
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="inline-block w-2.5 h-2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg> Dicetak
                                     </span>
                                 @endif
                             </div>
@@ -77,7 +79,7 @@
                             <button wire:click="konfirmasiReset({{ $hp->id }})" wire:click.stop
                                     class="btn btn-ghost btn-xs btn-square shrink-0 text-gray-400 hover:text-emerald-600"
                                     title="Cetak ulang (hapus penanda)">
-                                ↺
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                             </button>
                         @endif
                     </div>
@@ -103,11 +105,13 @@
         <div class="relative w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl p-5 transition-all duration-200
                     {{ $showResetModal ? 'opacity-100 translate-y-0 sm:scale-100' : 'opacity-0 translate-y-4 sm:scale-95' }}">
             <div class="flex items-start gap-3">
-                <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center text-xl shrink-0">↺</div>
+                <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                </div>
                 <div class="min-w-0">
                     <h3 class="font-bold text-gray-800">Cetak ulang label?</h3>
                     <p class="text-sm text-gray-500 mt-1">
-                        Penanda <span class="badge badge-xs bg-emerald-100 text-emerald-700 border-none align-middle">✓ Dicetak</span>
+                        Penanda <span class="badge badge-xs bg-emerald-100 text-emerald-700 border-none align-middle gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="inline-block w-2.5 h-2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg> Dicetak</span>
                         untuk <span class="font-semibold text-gray-700">{{ $target?->merk_model ?? '-' }}</span>
                         akan dihapus. Kode label tetap sama, unit akan terlihat belum dicetak lagi.
                     </p>
