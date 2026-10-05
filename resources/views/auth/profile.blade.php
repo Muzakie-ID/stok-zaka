@@ -1,4 +1,4 @@
-<x-layouts.auth>
+<x-layouts.app>
     <x-auth.card title="Profil" subtitle="{{ $user->name }} · {{ $user->roleLabel() }}">
         @if (session('status'))
             <div class="rounded-xl bg-emerald-50 text-emerald-700 text-sm px-4 py-3 mt-5">{{ session('status') }}</div>
@@ -27,4 +27,4 @@
             </x-auth.button>
         </form>
     </x-auth.card>
-</x-layouts.auth>
+</x-layouts.app>
