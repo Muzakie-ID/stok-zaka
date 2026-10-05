@@ -38,7 +38,7 @@
             @else
             <a href="/saldo-saya" wire:navigate title="Saldo upah saya"
                class="w-9 h-9 rounded-full bg-white/80 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7 1v2" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" /></svg>
             </a>
             @endif
             <a href="/profil" title="Profil &amp; keluar"
@@ -56,6 +56,7 @@
 
     <!-- Bottom Navigation -->
     <div class="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-lg border-t border-gray-100 z-50 h-16 flex justify-around items-center shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+        <div class="flex-1 h-full flex justify-around items-center">
         <!-- Home -->
         <a href="/" wire:navigate class="flex flex-col items-center justify-center w-full h-full {{ request()->is('/') ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
@@ -75,15 +76,16 @@
             </svg>
             <span class="text-[10px] font-semibold">Jual</span>
         </a>
+        </div>
 
         <!-- Add Button (Center, semua user bisa tambah stok) -->
-        <div class="relative -top-6">
+        <div class="relative -top-6 shrink-0">
             <button onclick="modal_input_stok.showModal()" class="bg-emerald-600 text-white rounded-2xl h-12 w-12 shadow-[0_8px_20px_rgba(16,185,129,0.3)] grid place-items-center hover:bg-emerald-700 transition-all active:scale-90 border-4 border-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             </button>
         </div>
 
-
+        <div class="flex-1 h-full flex justify-around items-center">
         @if(auth()->user()?->isAdmin())
         <!-- Service -->
         <a href="/service" wire:navigate class="flex flex-col items-center justify-center w-full h-full {{ request()->is('service*') ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600' }}">
@@ -107,6 +109,7 @@
             <span class="text-[10px] font-semibold">Laporan</span>
         </a>
         @endif
+        </div>
     </div>
 
     <!-- Global Modal Input Stok (semua user: karyawan input tanpa modal) -->
