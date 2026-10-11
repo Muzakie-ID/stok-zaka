@@ -1,0 +1,19 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "framework": null,
+    "buildCommand": "bash -c 'composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-mongodb && npm install && npm run build'",
+    "installCommand": null,
+    "outputDirectory": "public",
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.7.4",
+            "maxDuration": 30
+        }
+    },
+    "rewrites": [
+        {
+            "source": "/((?!build/).*)",
+            "destination": "/api/index.php"
+        }
+    ]
+}

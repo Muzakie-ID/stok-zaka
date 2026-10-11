@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_STORE', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,6 +33,14 @@ return [
     */
 
     'stores' => [
+
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'connection' => env('MONGODB_CACHE_CONNECTION', 'mongodb'),
+            'collection' => env('MONGODB_CACHE_COLLECTION', 'cache'),
+            'lock_connection' => env('MONGODB_CACHE_LOCK_CONNECTION', 'mongodb'),
+            'lock_collection' => env('MONGODB_CACHE_LOCK_COLLECTION', 'cache_locks'),
+        ],
 
         'array' => [
             'driver' => 'array',

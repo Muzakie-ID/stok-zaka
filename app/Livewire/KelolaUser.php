@@ -14,7 +14,7 @@ class KelolaUser extends Component
 
     public string $formMode = '';
 
-    public ?int $editingId = null;
+    public ?string $editingId = null;
 
     public string $name = '';
 
@@ -52,7 +52,7 @@ class KelolaUser extends Component
         $this->formMode = 'tambah';
     }
 
-    public function openEdit(int $id): void
+    public function openEdit(string $id): void
     {
         $this->flash = '';
         $user = User::findOrFail($id);
@@ -114,7 +114,7 @@ class KelolaUser extends Component
         $this->flash = $message;
     }
 
-    public function hapus(int $id): void
+    public function hapus(string $id): void
     {
         $user = User::findOrFail($id);
 

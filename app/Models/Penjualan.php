@@ -2,11 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Penjualan extends Model
 {
+    protected $connection = 'mongodb';
+
+    protected $keyType = 'string';
+
     protected $fillable = ['nama_pembeli', 'wa_pembeli', 'total_transaksi', 'tanggal_jual', 'user_id'];
+
+    protected function casts(): array
+    {
+        return [
+            'tanggal_jual' => 'datetime',
+            'total_transaksi' => 'float',
+            'user_id' => 'string',
+        ];
+    }
 
     /**
      * Nomor WhatsApp pembeli dalam format internasional (628xxx).
@@ -29,13 +44,13 @@ class Penjualan extends Model
         return "https://wa.me/{$raw}";
     }
 
-    public function details()
+    public function details(): HasMany
     {
         return $this->hasMany(DetailPenjualan::class, 'penjualan_id');
     }
 
     /** User (admin/karyawan) yang mencatat penjualan ini. */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

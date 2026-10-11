@@ -13,12 +13,12 @@ return [
     | incoming requests. Laravel supports a variety of storage options to
     | persist session data. Database storage is a great default choice.
     |
-    | Supported: "file", "cookie", "database", "memcached",
+    | Supported: "file", "cookie", "database", "mongodb", "memcached",
     |            "redis", "dynamodb", "array"
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -73,18 +73,7 @@ return [
     |
     */
 
-    'connection' => env('SESSION_CONNECTION'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Session Database Table
-    |--------------------------------------------------------------------------
-    |
-    | When using the "database" session driver, you may specify the table to
-    | be used to store sessions. Of course, a sensible default is defined
-    | for you; however, you're welcome to change this to another table.
-    |
-    */
+    'connection' => env('SESSION_CONNECTION', 'mongodb'),
 
     'table' => env('SESSION_TABLE', 'sessions'),
 

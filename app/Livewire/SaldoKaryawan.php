@@ -20,7 +20,7 @@ class SaldoKaryawan extends Component
     public string $search = '';
 
     // Form beri upah / cairkan
-    public ?int $userId = null;
+    public ?string $userId = null;
 
     public string $userName = '';
 
@@ -53,7 +53,7 @@ class SaldoKaryawan extends Component
         ]);
     }
 
-    public function openForm(int $userId, string $type): void
+    public function openForm(string $userId, string $type): void
     {
         $user = User::findOrFail($userId);
         $this->userId = $user->id;
@@ -107,7 +107,7 @@ class SaldoKaryawan extends Component
         $this->dispatch('tutup-modal-upah');
     }
 
-    public function riwayat(int $userId)
+    public function riwayat(string $userId)
     {
         return SalaryTransaction::with('admin')
             ->where('user_id', $userId)

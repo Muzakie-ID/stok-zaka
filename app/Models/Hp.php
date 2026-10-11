@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Hp extends Model
 {
+    protected $connection = 'mongodb';
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'imei',
         'merk_model',
@@ -23,16 +29,19 @@ class Hp extends Model
     {
         return [
             'label_printed_at' => 'datetime',
+            'harga_beli_awal' => 'float',
+            'total_modal' => 'float',
+            'ditambahkan_oleh' => 'string',
         ];
     }
 
-    public function services()
+    public function services(): HasMany
     {
-        return $this->hasMany(Service::class);
+        return $this->hasMany(Service::class, 'hp_id');
     }
 
     /** User (admin/karyawan) yang menambahkan unit ini ke stok. */
-    public function pelacak()
+    public function pelacak(): BelongsTo
     {
         return $this->belongsTo(User::class, 'ditambahkan_oleh');
     }
@@ -43,6 +52,7 @@ class Hp extends Model
         return is_null($this->total_modal) || is_null($this->harga_beli_awal);
     }
 
+    /** @return \Illuminate\Database\Eloquent\Relations\MorphOne<\App\Models\CashFlow, \App\Models\Hp> */
     public function cashFlow()
     {
         return $this->morphOne(CashFlow::class, 'reference');

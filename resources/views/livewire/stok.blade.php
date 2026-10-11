@@ -18,7 +18,7 @@
             <div class="card bg-white shadow-sm border border-gray-100 rounded-xl overflow-hidden">
                 <div class="card-body p-4">
                     <!-- Klik area ini untuk buka detail -->
-                    <div class="cursor-pointer" wire:click="$dispatch('open-detail-hp', { id: {{ $hp->id }} })">
+                    <div class="cursor-pointer" wire:click="$dispatch('open-detail-hp', { id: '{{ $hp->id }}' })">
                         <div class="flex justify-between items-start">
                             <div>
                                 <h2 class="card-title text-base font-bold text-gray-800">{{ $hp->merk_model }}</h2>

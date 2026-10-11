@@ -14,7 +14,7 @@ use Picqer\Barcode\BarcodeGeneratorSVG;
 #[Title('Label Barcode')]
 class LabelBarcode extends Component
 {
-    /** @var array<int> */
+    /** @var array<string> */
     public array $selected = [];
 
     public string $search = '';
@@ -45,7 +45,7 @@ class LabelBarcode extends Component
         ]);
     }
 
-    public function toggle(int $id): void
+    public function toggle(string $id): void
     {
         if (($key = array_search($id, $this->selected)) !== false) {
             unset($this->selected[$key]);
@@ -63,7 +63,7 @@ class LabelBarcode extends Component
                 ->where('merk_model', 'like', '%'.$this->search.'%')
                 ->orWhere('imei', 'like', '%'.$this->search.'%')))
             ->pluck('id')
-            ->map(fn ($id) => (int) $id)
+            ->map(fn ($id) => (string) $id)
             ->all();
     }
 
@@ -87,7 +87,7 @@ class LabelBarcode extends Component
     }
 
     /** Buka modal konfirmasi hapus penanda cetak. */
-    public function konfirmasiReset(int $id): void
+    public function konfirmasiReset(string $id): void
     {
         $this->resetTarget = Hp::find($id);
         $this->showResetModal = $this->resetTarget !== null;

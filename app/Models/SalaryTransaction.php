@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use MongoDB\Laravel\Eloquent\Model;
 
 class SalaryTransaction extends Model
 {
     public const TYPE_EARN = 'earn';
 
     public const TYPE_PAID = 'paid';
+
+    protected $connection = 'mongodb';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',
@@ -22,7 +26,9 @@ class SalaryTransaction extends Model
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
+            'amount' => 'float',
+            'user_id' => 'string',
+            'admin_id' => 'string',
         ];
     }
 
@@ -37,10 +43,32 @@ class SalaryTransaction extends Model
     }
 
     /** Saldo saat ini untuk seorang user (earn minus paid). */
-    public static function saldoFor(int $userId): float
+    public static function saldoFor(string|int $userId): float
     {
-        return (float) static::where('user_id', $userId)
-            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'earn' THEN amount ELSE -amount END), 0) as saldo")
-            ->value('saldo');
+        $pipeline = [
+            [
+                '\$match' => ['user_id' => (string) $userId],
+            ],
+            [
+                '\$group' => [
+                    '_id' => null,
+                    'saldo' => [
+                        '\$sum' => [
+                            '\$cond' => [
+                                ['\$eq' => ['\$type', self::TYPE_EARN]],
+                                '\$amount',
+                                ['\$multiply' => ['\$amount', -1]],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = static::raw(function ($collection) use ($pipeline) {
+            return $collection->aggregate($pipeline);
+        })->first();
+
+        return (float) ($result->saldo ?? 0);
     }
 }
