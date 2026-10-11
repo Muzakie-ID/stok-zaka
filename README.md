@@ -1,61 +1,103 @@
-# Catatan Stok Bisnis
+# Catatan Stok Bisnis (stok-zaka)
 
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Aplikasi pencatatan stok, penjualan, service, keuangan, dan upah karyawan untuk usaha jual-beli HP bekas. Dibangun dengan Laravel 12 + Livewire 3, sekarang berjalan di atas **MongoDB** dan siap deploy ke **Vercel**.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Fitur
 
-## About Laravel
+- Manajemen stok HP (IMEI, warna, minus, RAM, harga modal)
+- Input stok oleh karyawan; admin melengkapi harga modal belakangan
+- Penjualan multi-unit dengan split harga per unit + retur barang
+- Pencarian pembeli via kode label barcode (4 digit terakhir IMEI)
+- Service per unit HP
+- Kas (cash flow) dengan referensi ke penjualan/input stok
+- Laporan laba/rugi per periode
+- Upah karyawan (saldo earn/paid) per karyawan
+- Label barcode cetak A4 & printer thermal bluetooth 58mm
+- Role admin/karyawan dengan pembatasan harga modal & laba
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Komponen | Teknologi |
+|---|---|
+| Framework | Laravel 12 |
+| Frontend | Livewire 3, Tailwind CSS 4, DaisyUI 5, Vite 7 |
+| Database | MongoDB Atlas (mongodb/laravel-mongodb v5.8) |
+| Session/Cache | MongoDB |
+| Queue | sync (serverless) |
+| Hosting | Vercel (vercel-php runtime, PHP 8.3) |
+| Barcode | picqer/php-barcode-generator, @zxing/browser |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Struktur Data
 
-## Learning Laravel
+MongoDB tidak punya skema kolom tetap. Migrasi `database/migrations/0001_01_01_000000_create_mongodb_collections.php` membuat collection + index yang dibutuhkan:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+`users`, `password_reset_tokens`, `sessions`, `cache`, `cache_locks`, `hps`, `services`, `penjualans`, `detail_penjualans`, `cash_flows`, `arus_kas`, `salary_transactions`, `jobs`, `job_batches`, `failed_jobs`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+ID dokumen memakai ObjectId yang dipresentasikan sebagai string di layer aplikasi (`$keyType = 'string'`).
 
-## Laravel Sponsors
+Migrasi MySQL lama diarsipkan di `database/migrations/_mysql_backup/`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Persiapan Lokal (Laragon/Windows)
 
-### Premium Partners
+1. PHP 8.3+ dengan ekstensi `mongodb` (PECL `php_mongodb` 1.21+). Di Laragon: unduh DLL dari `windows.php.net/downloads/pecl/releases/mongodb/`, letakkan di folder `ext/`, lalu tambahkan `extension=mongodb` di `php.ini`.
+2. Salin `.env.example` ke `.env`, isi `MONGODB_URI` (dari Atlas) dan `MONGODB_DATABASE`.
+3. Instal dependensi:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```
+composer install
+npm install
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+npm run dev
+php artisan serve
+```
 
-## Contributing
+Akun admin pertama dibuat oleh `AdminSeeder` (email dari `ADMIN_EMAIL`, password dari `ADMIN_PASSWORD` di `.env`).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Deploy ke Vercel
 
-## Code of Conduct
+1. Buat cluster MongoDB Atlas (M0 gratis). Di **Network Access** izinkan `0.0.0.0/0` (IP serverless Vercel dinamis).
+2. Jalankan migrasi dari lokal (sekali saja): `php artisan migrate`.
+3. Push repo ini, lalu import di [vercel.com/new](https://vercel.com/new).
+4. Set **Production Branch** ke branch `mongodb` (atau branch produksi pilihanmu).
+5. Isi Environment Variables:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Key | Contoh / Keterangan |
+|---|---|
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_URL` | `https://<project>.vercel.app` |
+| `ASSET_URL` | sama dengan `APP_URL` |
+| `APP_KEY` | `php artisan key:generate --show` |
+| `MONGODB_URI` | `mongodb+srv://user:pass@cluster0.xxx.mongodb.net/?retryWrites=true&w=majority` |
+| `MONGODB_DATABASE` | `stok_zaka` |
+| `SESSION_DRIVER` | `mongodb` |
+| `SESSION_SECURE_COOKIE` | `true` |
+| `CACHE_STORE` | `mongodb` |
+| `QUEUE_CONNECTION` | `sync` |
+| `LOG_CHANNEL` | `stderr` |
 
-## Security Vulnerabilities
+Build dijalankan lewat `vercel.json`: `composer install --no-dev` + `npm install` + `npm run build`. Runtime `vercel-php@0.7.4` (PHP 8.3) sudah menyertakan ekstensi `mongodb`. Request dinamis diarahkan ke `api/index.php`; file statis `public/build/` dilayani langsung.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Catatan Serverless
 
-## License
+- Filesystem ephemeral: jangan menyimpan file permanen di `storage/`.
+- Queue `sync`: semua proses berjalan inline, tidak ada worker.
+- Cold start function pertama sekitar 250 ms; request berikutnya cepat.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Struktur Penting
+
+```
+app/
+  Livewire/        Komponen halaman (Stok, Penjualan, Keuangan, ...)
+  Models/          Model MongoDB (Hp, Penjualan, CashFlow, ...)
+resources/
+  views/livewire/  View blade komponen
+database/
+  migrations/      Migration MongoDB (collection + index)
+  seeders/         AdminSeeder, DemoSeeder
+public/js/         label-print.js, thermal-printer.js
+api/index.php      Entrypoint serverless Vercel
+vercel.json        Konfigurasi build & routing Vercel
+```
