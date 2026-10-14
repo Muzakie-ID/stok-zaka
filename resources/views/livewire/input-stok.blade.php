@@ -249,6 +249,7 @@
         <div class="modal-box relative w-full max-w-md mx-auto rounded-t-3xl rounded-b-none sm:rounded-2xl p-0 bg-white shadow-2xl">
             <div class="p-4">
                 <h3 class="font-bold text-lg mb-4 text-center">Scan Barcode</h3>
+                <div id="scan-error" class="hidden mb-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs leading-relaxed"></div>
                 <div id="reader-container" class="w-full bg-black rounded-lg overflow-hidden">
                     <video id="reader-video"></video>
                 </div>
@@ -265,18 +266,43 @@
     </style>
     <script>
         (function () {
-            if (window.startScan) return; // Sudah pernah dideklarasikan (navigasi Livewire) — jangan redeclare
+            if (window.__imeiScannerInit) return; // Sudah pernah dideklarasikan (navigasi Livewire) — jangan redeclare
+            window.__imeiScannerInit = true;
 
             let codeReader;
             let isScanning = false;
 
+            function showScanError(msg) {
+                const box = document.getElementById('scan-error');
+                if (box) {
+                    box.textContent = msg;
+                    box.classList.remove('hidden');
+                }
+            }
+
+            function hideScanError() {
+                const box = document.getElementById('scan-error');
+                if (box) box.classList.add('hidden');
+            }
+
             window.startScan = function () {
-                if (!navigator.mediaDevices && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                    alert('Fitur kamera memerlukan koneksi aman (HTTPS) atau localhost.');
+                hideScanError();
+                const modal = document.getElementById('modal_scan');
+
+                // 1. Kamera wajib secure context: HTTPS atau localhost.
+                if (!window.isSecureContext || !navigator.mediaDevices) {
+                    showScanError('Kamera hanya bisa dibuka lewat koneksi aman. Buka situs ini pakai https:// (bukan http://) lalu coba lagi.');
+                    modal.showModal();
                     return;
                 }
 
-                const modal = document.getElementById('modal_scan');
+                // 2. Library scanner berasal dari build Vite (public/build). Kalau aset lama/belum termuat, jangan crash diam-diam.
+                if (!window.BrowserMultiFormatReader) {
+                    showScanError('Library scanner belum termuat. Pastikan folder public/build ter-upload dan lalu refresh pakai Ctrl+Shift+R (hard refresh).');
+                    modal.showModal();
+                    return;
+                }
+
                 modal.showModal();
                 isScanning = true;
 
@@ -285,9 +311,18 @@
                         codeReader = new window.BrowserMultiFormatReader();
                     }
 
-                    codeReader.decodeFromVideoDevice(null, 'reader-video', (result, err) => {
+                    // Kamera belakang + resolusi ideal agar barcode IMEI mudah terbaca
+                    const constraints = {
+                        video: {
+                            facingMode: 'environment',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                        },
+                    };
+
+                    codeReader.decodeFromConstraints(constraints, 'reader-video', (result, err) => {
                         if (result && isScanning) {
-                            console.log("Sukses Scan Code: " + result.getText());
+                            console.log('Sukses Scan Code: ' + result.getText());
 
                             // Isi data ke input Livewire
                             @this.set('imei', result.getText());
@@ -295,14 +330,20 @@
                             // Langsung tutup setelah sukses membaca 1x
                             stopScan();
                         }
-                        if (err && !(err instanceof window.NotFoundException)) {
-                            // Jangan alert NotFoundException (itu normal artinya frame tersebut tidak ada barcode)
-                            // console.error(err);
-                        }
+                        // err tanpa result = frame biasa tanpa barcode, abaikan.
                     }).catch((err) => {
-                        console.error("Kesalahan inisialisasi kamera:", err);
-                        alert("Kamera gagal diakses: " + err);
-                        stopScan();
+                        console.error('Kesalahan inisialisasi kamera:', err);
+                        const name = err && err.name ? err.name : '';
+                        let msg = 'Kamera gagal diakses' + (name ? ' (' + name + ')' : '') + '.';
+                        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+                            msg = 'Izin kamera ditolak. Buka pengaturan browser -> Site settings -> izinkan Kamera, lalu coba lagi.';
+                        } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+                            msg = 'Kamera tidak ditemukan di perangkat ini.';
+                        } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+                            msg = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi kamera lain lalu coba lagi.';
+                        }
+                        showScanError(msg);
+                        isScanning = false; // modal dibiarkan terbuka supaya pesan error terlihat
                     });
                 }, 300);
             };
