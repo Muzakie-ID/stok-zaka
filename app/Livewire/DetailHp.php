@@ -22,6 +22,7 @@ class DetailHp extends Component
     public $edit_minus;
     public $edit_sumber_beli;
     public $edit_harga_beli_awal;
+    public $edit_harga_net;
 
     public function toggleServiceForm()
     {
@@ -45,6 +46,7 @@ class DetailHp extends Component
             $this->edit_minus = $this->hp->keterangan_minus;
             $this->edit_sumber_beli = $this->hp->sumber_beli;
             $this->edit_harga_beli_awal = $this->hp->harga_beli_awal;
+            $this->edit_harga_net = $this->hp->harga_net;
         }
     }
 
@@ -60,6 +62,7 @@ class DetailHp extends Component
             'edit_minus' => 'nullable|string',
             'edit_sumber_beli' => 'nullable|string',
             'edit_harga_beli_awal' => 'required|numeric|min:0',
+            'edit_harga_net' => 'nullable|numeric|min:0',
         ]);
 
         // Hitung selisih harga beli jika berubah, untuk update total modal
@@ -73,6 +76,7 @@ class DetailHp extends Component
             'sumber_beli' => $this->edit_sumber_beli,
             'harga_beli_awal' => $this->edit_harga_beli_awal,
             'total_modal' => ($this->hp->total_modal ?? 0) + $selisih,
+            'harga_net' => $this->edit_harga_net ?: null,
         ]);
 
         $this->isEditing = false;

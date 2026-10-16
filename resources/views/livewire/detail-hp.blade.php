@@ -54,6 +54,24 @@
                             @error('edit_harga_beli_awal') <span class="text-error text-xs">{{ $message }}</span> @enderror
                         </div>
 
+                        <div class="form-control w-full">
+                            <label class="label py-1"><span class="label-text font-medium">Harga Net (Pas)</span></label>
+                            <div class="relative" x-data="{
+                                price: @entangle('edit_harga_net'),
+                                format(val) { return val ? new Intl.NumberFormat('id-ID').format(val) : '' },
+                                input(e) {
+                                    let raw = e.target.value.replace(/[^0-9]/g, '');
+                                    this.price = raw;
+                                    e.target.value = this.format(raw);
+                                }
+                            }">
+                                <input type="text" :value="format(price)" @input="input" placeholder="Kosongkan = belum ditentukan" class="input input-bordered w-full pl-10" />
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold pointer-events-none">Rp</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1">Harga pas jual, otomatis terisi saat checkout penjualan.</div>
+                            @error('edit_harga_net') <span class="text-error text-xs">{{ $message }}</span> @enderror
+                        </div>
+
                         <div class="flex gap-2 pt-4">
                             <button wire:click="toggleEdit" class="btn btn-error text-white flex-1">Batal</button>
                             <button wire:click="updateHp" class="btn btn-primary flex-1">Simpan Perubahan</button>
@@ -113,6 +131,14 @@
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-xs text-gray-500">Sumber Beli</span>
                                 <span class="font-semibold text-gray-700">{{ $hp->sumber_beli ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-gray-500">Harga Net (Pas)</span>
+                                @if($hp->harga_net !== null)
+                                <span class="font-semibold text-emerald-600">Rp {{ number_format($hp->harga_net, 0, ',', '.') }}</span>
+                                @else
+                                <span class="text-xs text-gray-400">Belum ditentukan</span>
+                                @endif
                             </div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-xs text-gray-500">Total Biaya Service</span>

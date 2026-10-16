@@ -14,6 +14,7 @@ class Hp extends Model
         'sumber_beli',
         'harga_beli_awal',
         'total_modal',
+        'harga_net',
         'status',
         'label_printed_at',
         'ditambahkan_oleh',

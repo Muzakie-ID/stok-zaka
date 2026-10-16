@@ -85,13 +85,34 @@
                                 @error('harga_beli_awal') <span class="text-error text-xs mt-1 ml-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Sumber Beli -->
+                            <!-- Harga Net / Harga Pas -->
                             <div class="form-control w-full">
                                 <label class="label py-1">
-                                    <span class="label-text font-medium text-gray-600">Sumber</span>
+                                    <span class="label-text font-medium text-gray-600">Harga Net (Pas)</span>
                                 </label>
-                                <input wire:model="sumber_beli" type="text" placeholder="Nama Penjual" class="input input-bordered w-full rounded-xl bg-gray-50 focus:bg-white transition-colors" />
+                                <div class="relative" x-data="{
+                                    price: @entangle('harga_net'),
+                                    format(val) { return val ? new Intl.NumberFormat('id-ID').format(val) : '' },
+                                    input(e) {
+                                        let raw = e.target.value.replace(/[^0-9]/g, '');
+                                        this.price = raw;
+                                        e.target.value = this.format(raw);
+                                    }
+                                }">
+                                    <input type="text" :value="format(price)" @input="input" placeholder="Kosongkan = belum ditentukan" class="input input-bordered w-full pl-10 rounded-xl bg-gray-50 focus:bg-white transition-colors @error('harga_net') input-error @enderror" />
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold pointer-events-none">Rp</span>
+                                </div>
+                                <div class="text-[10px] text-gray-400 mt-1 ml-1">Harga pas jual. Otomatis terisi saat checkout penjualan.</div>
+                                @error('harga_net') <span class="text-error text-xs mt-1 ml-1">{{ $message }}</span> @enderror
                             </div>
+                        </div>
+
+                        <!-- Sumber Beli -->
+                        <div class="form-control w-full">
+                            <label class="label py-1">
+                                <span class="label-text font-medium text-gray-600">Sumber</span>
+                            </label>
+                            <input wire:model="sumber_beli" type="text" placeholder="Nama Penjual" class="input input-bordered w-full rounded-xl bg-gray-50 focus:bg-white transition-colors" />
                         </div>
 
                         <!-- Checkbox Stok Pending (khusus admin) -->
@@ -138,6 +159,9 @@
                                             <div>
                                                 <div class="font-bold text-sm">{{ $item['merk_model'] }}</div>
                                                 <div class="text-xs text-gray-400">{{ $item['imei'] }}</div>
+                                                @if(!empty($item['harga_net']))
+                                                    <div class="text-[10px] text-emerald-600 mt-0.5">Net: Rp {{ number_format($item['harga_net'], 0, ',', '.') }}</div>
+                                                @endif
                                                 @if(!empty($item['warna']) || !empty($item['keterangan_minus']))
                                                     <div class="text-[10px] text-gray-500 mt-0.5">
                                                         {{ $item['warna'] ?? '-' }} 
@@ -199,6 +223,20 @@
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">Rp</span>
                                 </div>
                                 @error('harga_beli_awal') <span class="text-error text-xs">{{ $message }}</span> @enderror
+
+                                <div class="relative" x-data="{
+                                    price: @entangle('harga_net'),
+                                    format(val) { return val ? new Intl.NumberFormat('id-ID').format(val) : '' },
+                                    input(e) {
+                                        let raw = e.target.value.replace(/[^0-9]/g, '');
+                                        this.price = raw;
+                                        e.target.value = this.format(raw);
+                                    }
+                                }">
+                                    <input type="text" :value="format(price)" @input="input" placeholder="Harga Net (Pas)" class="input input-sm input-bordered w-full pl-9" />
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">Rp</span>
+                                </div>
+                                @error('harga_net') <span class="text-error text-xs">{{ $message }}</span> @enderror
                                 @endif
 
                                 <button wire:click="addBulkItem" class="btn btn-sm btn-secondary w-full text-white">

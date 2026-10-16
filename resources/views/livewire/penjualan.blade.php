@@ -131,6 +131,9 @@
                                     Modal: Rp {{ number_format($hp->total_modal ?? 0, 0, ',', '.') }}
                                     @if($modalBelumDiisi)<span class="badge badge-warning badge-xs text-white ml-1 gap-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="inline-block w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Modal belum diisi</span>@endif
                                     @endif
+                                    @if($hp->harga_net !== null)
+                                    <div class="text-xs font-bold text-emerald-600 mt-0.5">Harga pas: Rp {{ number_format($hp->harga_net, 0, ',', '.') }}</div>
+                                    @endif
                                 </div>
                             </div>
                             <div>
@@ -242,6 +245,9 @@
                                         </div>
                                         @if(auth()->user()?->isAdmin())
                                         <div class="badge badge-ghost text-xs">Modal: {{ number_format($hp->total_modal ?? 0, 0, ',', '.') }}</div>
+                                        @endif
+                                        @if($hp->harga_net !== null)
+                                        <div class="badge badge-success badge-outline text-xs mt-1">Harga pas: Rp {{ number_format($hp->harga_net, 0, ',', '.') }}</div>
                                         @endif
                                     </div>
                                     <div class="form-control">

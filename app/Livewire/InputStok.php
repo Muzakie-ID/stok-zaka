@@ -17,6 +17,7 @@ class InputStok extends Component
     public $warna;
     public $keterangan_minus;
     public $harga_beli_awal;
+    public $harga_net; // Harga pas/net: default harga jual saat checkout
     public $sumber_beli;
     public $sudah_bayar = false; // Checkbox untuk Stok Pending
 
@@ -41,6 +42,7 @@ class InputStok extends Component
 
         if (! $this->isKaryawan()) {
             $rules['harga_beli_awal'] = 'required|numeric|min:0';
+            $rules['harga_net'] = 'nullable|numeric|min:0';
             $rules['sumber_beli'] = 'nullable|string';
         }
 
@@ -50,7 +52,7 @@ class InputStok extends Component
     public function setMode($mode)
     {
         $this->mode = $mode;
-        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'bulkItems', 'total_borongan', 'sudah_bayar']);
+        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'harga_net', 'bulkItems', 'total_borongan', 'sumber_beli', 'sudah_bayar']);
     }
 
     // --- Logic Satuan ---
@@ -66,6 +68,7 @@ class InputStok extends Component
                 'keterangan_minus' => $this->keterangan_minus,
                 'harga_beli_awal' => $this->isKaryawan() ? null : $this->harga_beli_awal,
                 'total_modal' => $this->isKaryawan() ? null : $this->harga_beli_awal,
+                'harga_net' => $this->isKaryawan() ? null : ($this->harga_net ?: null),
                 'sumber_beli' => $this->isKaryawan() ? null : $this->sumber_beli,
                 'status' => 'READY',
                 'ditambahkan_oleh' => auth()->id(),
@@ -85,7 +88,7 @@ class InputStok extends Component
             }
         });
 
-        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'sumber_beli', 'sudah_bayar']);
+        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'harga_net', 'sumber_beli', 'sudah_bayar']);
 
         session()->flash('message', $this->isKaryawan()
             ? 'Stok tersimpan. Menunggu admin melengkapi harga modal.'
@@ -104,6 +107,7 @@ class InputStok extends Component
             'keterangan_minus' => 'nullable|string',
         ] + ($this->isKaryawan() ? [] : [
             'harga_beli_awal' => 'required|numeric|min:0',
+            'harga_net' => 'nullable|numeric|min:0',
         ]));
 
         // Cek duplikasi IMEI di list sementara
@@ -120,10 +124,11 @@ class InputStok extends Component
             'warna' => $this->warna,
             'keterangan_minus' => $this->keterangan_minus,
             'harga_beli_awal' => $this->isKaryawan() ? null : $this->harga_beli_awal,
+            'harga_net' => $this->isKaryawan() ? null : ($this->harga_net ?: null),
         ];
 
         $this->calculateTotalBorongan();
-        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal']);
+        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'harga_net']);
     }
 
     public function removeBulkItem($index)
@@ -159,6 +164,7 @@ class InputStok extends Component
                     'keterangan_minus' => $item['keterangan_minus'] ?? null,
                     'harga_beli_awal' => $this->isKaryawan() ? null : ($item['harga_beli_awal'] ?? null),
                     'total_modal' => $this->isKaryawan() ? null : ($item['harga_beli_awal'] ?? null),
+                    'harga_net' => $this->isKaryawan() ? null : ($item['harga_net'] ?? null),
                     'sumber_beli' => $this->isKaryawan() ? null : $this->sumber_beli,
                     'status' => 'READY',
                     'ditambahkan_oleh' => auth()->id(),
@@ -179,7 +185,7 @@ class InputStok extends Component
         });
 
         $jumlahItem = count($this->bulkItems);
-        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'sumber_beli', 'bulkItems', 'total_borongan', 'sudah_bayar']);
+        $this->reset(['imei', 'merk_model', 'warna', 'keterangan_minus', 'harga_beli_awal', 'harga_net', 'sumber_beli', 'bulkItems', 'total_borongan', 'sudah_bayar']);
 
         session()->flash('message', $this->isKaryawan()
             ? "{$jumlahItem} stok tersimpan. Menunggu admin melengkapi harga modal."

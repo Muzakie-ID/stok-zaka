@@ -71,10 +71,13 @@ class Penjualan extends Component
 
         $this->step = 2;
 
-        // Inisialisasi array harga jual dengan 0
+        // Inisialisasi harga jual per unit: default dari harga net (harga pas).
+        // Kalau belum ada harga net, mulai dari 0 (isi manual).
+        $hpsInit = Hp::whereIn('id', $this->selectedHps)->pluck('harga_net', 'id');
         foreach ($this->selectedHps as $id) {
-            $this->harga_jual_items[$id] = 0;
+            $this->harga_jual_items[$id] = $hpsInit[$id] !== null ? (float) $hpsInit[$id] : 0;
         }
+        $this->updatedHargaJualItems(); // Total transaksi langsung terisi
     }
 
     public function prevStep()
