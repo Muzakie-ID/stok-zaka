@@ -12,6 +12,7 @@ function labelItems() {
         model: item.querySelector('.label-model')?.textContent.trim() || '',
         barcodeSvg: item.querySelector('.label-barcode')?.innerHTML || '',
         code: item.querySelector('.label-code')?.textContent.trim() || '',
+        price: item.querySelector('.label-price')?.textContent.trim() || '',
     }));
 }
 
@@ -65,7 +66,8 @@ function printHtml(rows) {
         '.label-item { border: 1px dashed #bbb; border-radius: 3mm; padding: 3mm 2mm; text-align: center;',
         '  page-break-inside: avoid; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 30mm; }',
         '.label-model { font-size: 9pt; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }',
-        '.label-barcode svg { max-width: 90%; height: 14mm; }',
+        '.label-barcode svg { max-width: 90%; height: 13mm; }',
+        '.label-price { font-size: 10pt; font-weight: 800; color: #059669; }',
         '.label-code { font-size: 13pt; font-weight: 800; letter-spacing: 3px; font-family: monospace; }',
         '</style></head><body>',
         '<div class="label-grid">' + rows + '</div>',
@@ -88,7 +90,7 @@ async function printBluetooth() {
 
     try {
         const printer = await ThermalPrinter.connect();
-        await ThermalPrinter.printLabel(printer, items.map(i => ({ model: i.model, code: i.code })));
+        await ThermalPrinter.printLabel(printer, items.map(i => ({ model: i.model, code: i.code, price: i.price })));
         ThermalPrinter.disconnect(printer);
         markPrinted(); // cetak bluetooth sukses → tandai
     } catch (err) {

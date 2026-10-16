@@ -66,10 +66,19 @@
                         </div>
                         @endif
                         @else
-                        <!-- Karyawan: info sensitif (modal/sumber) disembunyikan -->
-                        <div class="text-xs text-gray-400">
-                            @if($hp->warna)<span class="mr-2">{{ $hp->warna }}</span>@endif
-                            @if($hp->keterangan_minus)<span>Minus: {{ $hp->keterangan_minus }}</span>@endif
+                        <!-- Karyawan: info sensitif (modal/sumber) disembunyikan, harga pas boleh tampil -->
+                        <div class="text-right">
+                            @if($hp->harga_net !== null)
+                            <p class="text-xs text-gray-400 mb-0.5">Harga Pas</p>
+                            <div class="font-bold text-emerald-600">
+                                Rp {{ number_format($hp->harga_net, 0, ',', '.') }}
+                            </div>
+                            @else
+                            <div class="text-xs text-gray-400">
+                                @if($hp->warna)<span class="mr-2">{{ $hp->warna }}</span>@endif
+                                @if($hp->keterangan_minus)<span>Minus: {{ $hp->keterangan_minus }}</span>@endif
+                            </div>
+                            @endif
                         </div>
                         @endif
                     </div>

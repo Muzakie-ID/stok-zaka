@@ -70,6 +70,9 @@
                                 @endif
                             </div>
                             <p class="text-xs text-gray-400 font-mono">{{ $hp->imei }}</p>
+                            @if($hp->harga_net !== null)
+                            <p class="text-xs font-bold text-emerald-600">Rp {{ number_format($hp->harga_net, 0, ',', '.') }}</p>
+                            @endif
                         </div>
                         <div class="text-right shrink-0">
                             <div class="font-mono text-lg font-bold {{ $sudahCetak ? 'text-emerald-500' : 'text-emerald-600' }}">{{ \App\Livewire\LabelBarcode::kodeLabel($hp->imei) }}</div>
@@ -137,6 +140,9 @@
                         <div class="label-model">{{ $hp->merk_model }}</div>
                         <div class="label-barcode">{!! $this->barcodeSvg($hp->imei) !!}</div>
                         <div class="label-code">{{ \App\Livewire\LabelBarcode::kodeLabel($hp->imei) }}</div>
+                        @if($hp->harga_net !== null)
+                        <div class="label-price">Rp {{ number_format($hp->harga_net, 0, ',', '.') }}</div>
+                        @endif
                     </div>
                 @endif
             @endforeach
