@@ -346,7 +346,19 @@
 
                 setTimeout(() => {
                     if (!codeReader) {
-                        codeReader = new window.BrowserMultiFormatReader();
+                        // Batasi format + percepat interval (default: scan SEMUA format dengan jeda 500ms = lambat)
+                        const F = window.BarcodeFormat, H = window.DecodeHintType;
+                        const hints = new Map();
+                        if (F && H) {
+                            hints.set(H.POSSIBLE_FORMATS, [
+                                F.CODE_128, F.EAN_13, F.EAN_8,
+                                F.UPC_A, F.UPC_E, F.CODE_39, F.ITF,
+                            ]);
+                        }
+                        codeReader = new window.BrowserMultiFormatReader(hints, {
+                            delayBetweenScanAttempts: 100,
+                            delayBetweenScanSuccess: 300,
+                        });
                     }
 
                     // Kamera belakang + resolusi ideal agar barcode IMEI mudah terbaca
