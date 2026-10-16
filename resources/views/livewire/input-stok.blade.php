@@ -290,7 +290,11 @@
                 <div id="scan-error" class="hidden mb-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs leading-relaxed"></div>
                 <div id="reader-container" class="w-full bg-black rounded-lg overflow-hidden">
                     <video id="reader-video"></video>
+                    <div id="scan-guide-box"
+                         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-emerald-400 pointer-events-none"
+                         style="width: 84%; height: 36%; box-shadow: 0 0 0 200vmax rgba(0,0,0,0.45);"></div>
                 </div>
+                <p class="text-[11px] text-gray-400 text-center mt-2">Arahkan barcode IMEI ke dalam kotak — hanya area di dalam kotak yang discan.</p>
                 <div class="modal-action justify-center">
                     <button type="button" onclick="stopScan()" class="btn btn-ghost text-red-500">Batal</button>
                 </div>
@@ -300,15 +304,21 @@
 
     <style>
         #reader-container { width: 100%; height: 300px; position: relative; overflow: hidden; }
-        #reader-video { width: 100%; height: 100%; object-fit: cover; }
+        #reader-video { width: 100%; height: 100%; object-fit: cover; display: block; }
     </style>
     <script>
         (function () {
             if (window.__imeiScannerInit) return; // Sudah pernah dideklarasikan (navigasi Livewire) — jangan redeclare
             window.__imeiScannerInit = true;
 
-            let codeReader;
+            let codeReader = null;
+            let stream = null;
+            let scanTimer = null;
             let isScanning = false;
+
+            // Canvas kecil khusus area crop (willReadFrequently = cepat untuk getImageData)
+            const cropCanvas = document.createElement('canvas');
+            const cropCtx = cropCanvas.getContext('2d', { willReadFrequently: true });
 
             function showScanError(msg) {
                 const box = document.getElementById('scan-error');
@@ -321,6 +331,55 @@
             function hideScanError() {
                 const box = document.getElementById('scan-error');
                 if (box) box.classList.add('hidden');
+            }
+
+            // Rect kotak panduan relatif terhadap container video
+            function guideRect() {
+                const container = document.getElementById('reader-container');
+                const box = document.getElementById('scan-guide-box');
+                if (!container || !box) return null;
+                const cr = container.getBoundingClientRect();
+                const br = box.getBoundingClientRect();
+                return { x: br.left - cr.left, y: br.top - cr.top, w: br.width, h: br.height, cw: cr.width, ch: cr.height };
+            }
+
+            // Decode HANYA area di dalam kotak panduan (crop).
+            // Video tampil object-fit: cover, jadi posisi kotak di layar harus dipetakan
+            // balik ke koordinat piksel video sebelum di-crop.
+            function decodeCrop() {
+                const video = document.getElementById('reader-video');
+                if (!isScanning || !codeReader || !video || video.readyState < 2) return;
+                const g = guideRect();
+                const vw = video.videoWidth, vh = video.videoHeight;
+                if (!g || !vw || !vh) return;
+
+                const scale = Math.max(g.cw / vw, g.ch / vh); // skala object-fit: cover
+                const ox = (vw * scale - g.cw) / 2;           // offset video yang terpotong
+                const oy = (vh * scale - g.ch) / 2;
+                const sx = (g.x + ox) / scale;
+                const sy = (g.y + oy) / scale;
+                const sw = g.w / scale;
+                const sh = g.h / scale;
+                if (sw < 8 || sh < 8) return;
+
+                cropCanvas.width = Math.round(sw);
+                cropCanvas.height = Math.round(sh);
+                cropCtx.drawImage(video, sx, sy, sw, sh, 0, 0, cropCanvas.width, cropCanvas.height);
+
+                try {
+                    const result = codeReader.decodeFromCanvas(cropCanvas);
+                    if (result && isScanning) {
+                        console.log('Sukses Scan Code: ' + result.getText());
+
+                        // Isi data ke input Livewire
+                        @this.set('imei', result.getText());
+
+                        // Langsung tutup setelah sukses membaca 1x
+                        stopScan();
+                    }
+                } catch (e) {
+                    // NotFoundException = tidak ada barcode di dalam kotak, abaikan.
+                }
             }
 
             window.startScan = function () {
@@ -344,9 +403,25 @@
                 modal.showModal();
                 isScanning = true;
 
-                setTimeout(() => {
+                // Kamera belakang + resolusi ideal agar barcode IMEI mudah terbaca
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                    },
+                };
+
+                navigator.mediaDevices.getUserMedia(constraints).then((s) => {
+                    stream = s;
+                    const video = document.getElementById('reader-video');
+                    if (!video) { stopScan(); return; }
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', 'true');
+                    video.play().catch(() => {});
+
                     if (!codeReader) {
-                        // Batasi format + percepat interval (default: scan SEMUA format dengan jeda 500ms = lambat)
+                        // Batasi format (default: scan SEMUA format = berat & rawan salah baca)
                         const F = window.BarcodeFormat, H = window.DecodeHintType;
                         const hints = new Map();
                         if (F && H) {
@@ -355,59 +430,39 @@
                                 F.UPC_A, F.UPC_E, F.CODE_39, F.ITF,
                             ]);
                         }
-                        codeReader = new window.BrowserMultiFormatReader(hints, {
-                            delayBetweenScanAttempts: 100,
-                            delayBetweenScanSuccess: 300,
-                        });
+                        codeReader = new window.BrowserMultiFormatReader(hints);
                     }
 
-                    // Kamera belakang + resolusi ideal agar barcode IMEI mudah terbaca
-                    const constraints = {
-                        video: {
-                            facingMode: 'environment',
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 },
-                        },
-                    };
-
-                    codeReader.decodeFromConstraints(constraints, 'reader-video', (result, err) => {
-                        if (result && isScanning) {
-                            console.log('Sukses Scan Code: ' + result.getText());
-
-                            // Isi data ke input Livewire
-                            @this.set('imei', result.getText());
-
-                            // Langsung tutup setelah sukses membaca 1x
-                            stopScan();
-                        }
-                        // err tanpa result = frame biasa tanpa barcode, abaikan.
-                    }).catch((err) => {
-                        console.error('Kesalahan inisialisasi kamera:', err);
-                        const name = err && err.name ? err.name : '';
-                        let msg = 'Kamera gagal diakses' + (name ? ' (' + name + ')' : '') + '.';
-                        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-                            msg = 'Izin kamera ditolak. Buka pengaturan browser -> Site settings -> izinkan Kamera, lalu coba lagi.';
-                        } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
-                            msg = 'Kamera tidak ditemukan di perangkat ini.';
-                        } else if (name === 'NotReadableError' || name === 'TrackStartError') {
-                            msg = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi kamera lain lalu coba lagi.';
-                        }
-                        showScanError(msg);
-                        isScanning = false; // modal dibiarkan terbuka supaya pesan error terlihat
-                    });
-                }, 300);
+                    // Decode rutin: hanya area kotak panduan, tiap 120ms
+                    scanTimer = setInterval(decodeCrop, 120);
+                }).catch((err) => {
+                    console.error('Kesalahan inisialisasi kamera:', err);
+                    const name = err && err.name ? err.name : '';
+                    let msg = 'Kamera gagal diakses' + (name ? ' (' + name + ')' : '') + '.';
+                    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+                        msg = 'Izin kamera ditolak. Buka pengaturan browser -> Site settings -> izinkan Kamera, lalu coba lagi.';
+                    } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+                        msg = 'Kamera tidak ditemukan di perangkat ini.';
+                    } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+                        msg = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi kamera lain lalu coba lagi.';
+                    }
+                    showScanError(msg);
+                    isScanning = false; // modal dibiarkan terbuka supaya pesan error terlihat
+                });
             };
 
             window.stopScan = function () {
                 isScanning = false;
-                if (codeReader) {
-                    try {
-                        // Reset akan menghentikan stream kamera dan membersihkan listener
-                        codeReader.reset();
-                    } catch (e) {
-                        console.error(e);
-                    }
+                if (scanTimer) {
+                    clearInterval(scanTimer);
+                    scanTimer = null;
                 }
+                if (stream) {
+                    stream.getTracks().forEach((t) => t.stop());
+                    stream = null;
+                }
+                const video = document.getElementById('reader-video');
+                if (video) video.srcObject = null;
 
                 const modal = document.getElementById('modal_scan');
                 if (modal) {
