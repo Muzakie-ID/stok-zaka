@@ -74,11 +74,6 @@ const ThermalPrinter = {
             // Kode 4 digit besar (double width + double height)
             cmds += `${ESC}!\x60${code}\n`;
 
-            // Harga jual (jika ada), bold
-            if (item.price) {
-                cmds += `${ESC}!\x30${item.price.slice(0, 16)}\n`;
-            }
-
             // Feed & cut
             cmds += `\n\n`;
         }

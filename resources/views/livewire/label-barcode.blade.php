@@ -140,9 +140,6 @@
                         <div class="label-model">{{ $hp->merk_model }}</div>
                         <div class="label-barcode">{!! $this->barcodeSvg($hp->imei) !!}</div>
                         <div class="label-code">{{ \App\Livewire\LabelBarcode::kodeLabel($hp->imei) }}</div>
-                        @if($hp->harga_net !== null)
-                        <div class="label-price">Rp {{ number_format($hp->harga_net, 0, ',', '.') }}</div>
-                        @endif
                     </div>
                 @endif
             @endforeach
