@@ -17,7 +17,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/', Home::class)->name('dashboard');
     Route::get('/stok', Stok::class);
     Route::get('/penjualan', Penjualan::class);
-    Route::get('/saldo-saya', SaldoSaya::class)->name('saldo-saya');
     Route::get('/label', LabelBarcode::class)->name('label');
 
     // Khusus admin
@@ -27,5 +26,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan', Laporan::class);
         Route::get('/kelola-user', KelolaUser::class)->name('kelola-user');
         Route::get('/saldo-karyawan', SaldoKaryawan::class)->name('saldo-karyawan');
+        Route::get('/saldo-saya', SaldoSaya::class)->name('saldo-saya');
     });
 });
