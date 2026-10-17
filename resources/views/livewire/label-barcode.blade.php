@@ -1,5 +1,5 @@
 @assets
-    <script src="/js/thermal-printer.js"></script>
+    @vite('resources/js/niimbot.js')
     <script src="/js/label-print.js"></script>
 @endassets
 

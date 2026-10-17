@@ -73,7 +73,7 @@ function printHtml(rows) {
     ].join('\n');
 }
 
-// ===== Cetak Bluetooth thermal (ESC/POS 58mm) via Web Bluetooth =====
+// ===== Cetak Bluetooth (Niimbot B1, label 50x30mm) via Web Bluetooth =====
 async function printBluetooth() {
     const items = labelItems();
     if (!items.length) {
@@ -81,17 +81,21 @@ async function printBluetooth() {
         return;
     }
 
-    if (typeof window.ThermalPrinter === 'undefined') {
+    if (typeof window.NiimbotPrinter === 'undefined') {
         alert('Modul printer belum termuat. Muat ulang halaman.');
         return;
     }
 
     try {
-        const printer = await ThermalPrinter.connect();
-        await ThermalPrinter.printLabel(printer, items.map(i => ({ model: i.model, code: i.code })));
-        ThermalPrinter.disconnect(printer);
+        const printer = await NiimbotPrinter.connect();
+        try {
+            await NiimbotPrinter.printLabel(printer, items.map(i => ({ model: i.model, code: i.code })));
+        } finally {
+            NiimbotPrinter.disconnect(printer);
+        }
         markPrinted(); // cetak bluetooth sukses → tandai
     } catch (err) {
+        if (err.name === 'NotFoundError') return; // user membatalkan dialog Bluetooth
         alert('Gagal cetak: ' + (err.message || err));
     }
 }
